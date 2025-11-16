@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>En Yakın Nokta Çifti – Böl ve Yönet Animasyonu</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-top: 16px;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+
+    #container {
+      display: flex;
+      gap: 16px;
+      margin: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #canvasWrapper,
+    #infoPanel {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 12px 16px;
+    }
+
+    #canvasWrapper {
+      padding-bottom: 8px;
+    }
+
+    #infoPanel {
+      max-width: 360px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    #controls {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      background: #fafafa;
+      font-size: 0.9rem;
+    }
+
+    button:hover {
+      background: #eaeaea;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #eee;
+      margin-right: 4px;
+    }
+
+    .badge-current {
+      background: #ddeaff;
+    }
+
+    .badge-best {
+      background: #c8f7c8;
+    }
+
+    .badge-strip {
+      background: #ffe9b8;
+    }
+
+    .badge-recurse {
+      background: #f0d9ff;
+    }
+
+    code {
+      background: #f0f0f0;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    ul {
+      padding-left: 18px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>En Yakın Nokta Çifti – Böl ve Yönet (Divide &amp; Conquer) Animasyonu</h1>
+
+  <div id="container">
+    <div id="canvasWrapper">
+      <canvas id="plane" width="700" height="420"></canvas>
+      <div id="controls">
+        <button id="startBtn">Başlat</button>
+        <button id="pauseBtn" disabled>Duraklat</button>
+        <button id="resetBtn">Sıfırla</button>
+      </div>
+    </div>
+
+    <div id="infoPanel">
+      <p>
+        Bu animasyon, 16 nokta üzerinde <strong>En Yakın Nokta Çifti</strong> problemini
+        <strong>Böl ve Yönet (Divide &amp; Conquer)</strong> yaklaşımıyla çözer.
+      </p>
+
+      <p>
+        Algoritma kabaca şu adımları izler:
+      </p>
+      <ul>
+        <li>Noktaları <strong>x</strong> koordinatına göre sırala.</li>
+        <li>Ortadan ikiye böl: sol ve sağ alt problem.</li>
+        <li>Her iki tarafta en yakın çifti rekürsif olarak bul.</li>
+        <li>Ortadaki <strong>şerit (strip)</strong> bölgesinde, tarafta bulunan en iyi mesafeden daha yakın bir çift var mı diye kontrol et.</li>
+      </ul>
+
+      <hr>
+
+      <p id="stepInfo">
+        Hazırsan <strong>Başlat</strong> düğmesine tıkla.
+      </p>
+
+      <p id="bestInfo">
+        En iyi mesafe: —
+      </p>
+
+      <p id="extraInfo"></p>
+      <p id="doneInfo" style="font-weight:bold;"></p>
+    </div>
+  </div>
+
+  <script>
+    // 16 nokta: önceki brute-force animasyonu ile uyumlu
+    const points = [
+      { name: "A", x: 1,  y: 1 },
+      { name: "B", x: 2,  y: 1 },
+      { name: "C", x: 4,  y: 1 },
+      { name: "D", x: 7,  y: 1 },
+      { name: "E", x: 3,  y: 3 },
+      { name: "F", x: 6,  y: 3 },
+      { name: "G", x: 8,  y: 3 },
+      { name: "H", x: 5,  y: 5 },
+      { name: "I", x: 9,  y: 1 },
+      { name: "J", x: 10, y: 2 },
+      { name: "K", x: 12, y: 2 },
+      { name: "L", x: 14, y: 1 },
+      { name: "M", x: 9,  y: 4 },
+      { name: "N", x: 11, y: 4 },
+      { name: "O", x: 13, y: 3 },
+      { name: "P", x: 15, y: 5 }
+    ];
+
+    const canvas = document.getElementById("plane");
+    const ctx = canvas.getContext("2d");
+
+    const stepInfoEl = document.getElementById("stepInfo");
+    const bestInfoEl = document.getElementById("bestInfo");
+    const extraInfoEl = document.getElementById("extraInfo");
+    const doneInfoEl = document.getElementById("doneInfo");
+
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    // Ölçek & offset
+    const scale = 35;
+    const offsetX = 40;
+    const offsetY = 360;
+
+    function toCanvasCoords(pt) {
+      return {
+        x: offsetX + pt.x * scale,
+        y: offsetY - pt.y * scale
+      };
+    }
+
+    function drawPoints() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Hafif ızgara
+      ctx.save();
+      ctx.strokeStyle = "#eeeeee";
+      ctx.lineWidth = 1;
+      for (let gx = 0; gx <= 16; gx++) {
+        const cx = offsetX + gx * scale;
+        ctx.beginPath();
+        ctx.moveTo(cx, 40);
+        ctx.lineTo(cx, offsetY + 20);
+        ctx.stroke();
+      }
+      for (let gy = 0; gy <= 6; gy++) {
+        const cy = offsetY - gy * scale;
+        ctx.beginPath();
+        ctx.moveTo(offsetX - 10, cy);
+        ctx.lineTo(offsetX + 16 * scale + 10, cy);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Noktalar
+      ctx.font = "12px sans-serif";
+      points.forEach(p => {
+        const c = toCanvasCoords(p);
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "#222";
+        ctx.fill();
+        ctx.fillStyle = "#000";
+        ctx.fillText(p.name + `(${p.x},${p.y})`, c.x + 6, c.y - 6);
+      });
+    }
+
+    function drawLineBetween(p1, p2, color, width, dash = []) {
+      const c1 = toCanvasCoords(p1);
+      const c2 = toCanvasCoords(p2);
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+      ctx.moveTo(c1.x, c1.y);
+      ctx.lineTo(c2.x, c2.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawVerticalLineAtX(xCoord, color, dash = []) {
+      const cx = offsetX + xCoord * scale;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.setLineDash(dash);
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, 40);
+      ctx.lineTo(cx, offsetY + 20);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawStripRegion(midX, delta) {
+      const leftX = offsetX + (midX - delta) * scale;
+      const rightX = offsetX + (midX + delta) * scale;
+      const topY = 40;
+      const bottomY = offsetY + 20;
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 223, 128, 0.2)";
+      ctx.fillRect(leftX, topY, rightX - leftX, bottomY - topY);
+      ctx.restore();
+    }
+
+    function distance(p1, p2) {
+      const dx = p1.x - p2.x;
+      const dy = p1.y - p2.y;
+      return Math.hypot(dx, dy);
+    }
+
+    function formatNumber(num) {
+      return num.toFixed(3).replace(".", ",");
+    }
+
+    // ---- Divide & Conquer algoritmasını çalıştırırken adımları kaydedeceğiz ----
+    const steps = [];
+    let globalBestDist = Infinity;
+    let globalBestPair = null;
+
+    function logRecurse(level, px) {
+      const minX = px[0].x;
+      const maxX = px[px.length - 1].x;
+      steps.push({
+        type: "recurse",
+        level,
+        minX,
+        maxX,
+        text:
+          `Seviye ${level}: x ∈ [${minX}, ${maxX}] aralığındaki noktalar için ` +
+          `en yakın çifti bulmak üzere böl ve yönet çağrısı.`
+      });
+    }
+
+    function logCheck(p1, p2, d, context, level) {
+      steps.push({
+        type: "check",
+        p1,
+        p2,
+        dist: d,
+        context, // "bruteforce-left", "bruteforce-right", "strip"
+        level,
+        bestDist: globalBestDist
+      });
+    }
+
+    function logUpdateBest(p1, p2, d, where, level) {
+      steps.push({
+        type: "updateBest",
+        p1,
+        p2,
+        dist: d,
+        where,
+        level
+      });
+    }
+
+    function logStrip(midX, delta, level) {
+      steps.push({
+        type: "stripRegion",
+        midX,
+        delta,
+        level
+      });
+    }
+
+    function logDone(finalPair, finalDist) {
+      steps.push({
+        type: "done",
+        pair: finalPair,
+        dist: finalDist
+      });
+    }
+
+    // Brute force (küçük alt kümelerde kullanılıyor)
+    function bruteForce(P, context, level) {
+      let minD = Infinity;
+      let best = null;
+      for (let i = 0; i < P.length; i++) {
+        for (let j = i + 1; j < P.length; j++) {
+          const d = distance(P[i], P[j]);
+          logCheck(P[i], P[j], d, context, level);
+          if (d < minD) {
+            minD = d;
+            best = { p1: P[i], p2: P[j] };
+          }
+          if (d < globalBestDist) {
+            globalBestDist = d;
+            globalBestPair = { p1: P[i], p2: P[j] };
+            logUpdateBest(P[i], P[j], d, context, level);
+          }
+        }
+      }
+      return { dist: minD, pair: best };
+    }
+
+    // D&C: Px -> x'e göre sıralı, Py -> y'ye göre sıralı aynı küme
+    function closestPairDC(Px, Py, level) {
+      logRecurse(level, Px);
+
+      const n = Px.length;
+      if (n <= 3) {
+        // küçük alt problem: brute force
+        return bruteForce(Px, "bruteforce", level);
+      }
+
+      const mid = Math.floor(n / 2);
+      const midPoint = Px[mid];
+      const midX = midPoint.x;
+
+      const Qx = Px.slice(0, mid);
+      const Rx = Px.slice(mid);
+
+      const Qset = new Set(Qx.map(p => p.name));
+      const Qy = [];
+      const Ry = [];
+      for (const p of Py) {
+        if (Qset.has(p.name)) Qy.push(p);
+        else Ry.push(p);
+      }
+
+      const leftRes = closestPairDC(Qx, Qy, level + 1);
+      const rightRes = closestPairDC(Rx, Ry, level + 1);
+
+      let d = leftRes.dist;
+      let bestPair = leftRes.pair;
+      if (rightRes.dist < d) {
+        d = rightRes.dist;
+        bestPair = rightRes.pair;
+      }
+
+      if (d < globalBestDist) {
+        globalBestDist = d;
+        globalBestPair = bestPair;
+        logUpdateBest(bestPair.p1, bestPair.p2, d, "sol/sağ alt problemlerin sonucu", level);
+      }
+
+      // Strip oluşturma
+      const strip = [];
+      for (const p of Py) {
+        if (Math.abs(p.x - midX) < d) {
+          strip.push(p);
+        }
+      }
+
+      if (strip.length > 0) {
+        logStrip(midX, d, level);
+      }
+
+      // Strip içinde kontrol (en fazla 7 komşu)
+      let minStrip = d;
+      let stripBest = bestPair;
+      for (let i = 0; i < strip.length; i++) {
+        for (let j = i + 1; j < strip.length && (strip[j].y - strip[i].y) < minStrip; j++) {
+          const ds = distance(strip[i], strip[j]);
+          logCheck(strip[i], strip[j], ds, "strip", level);
+          if (ds < minStrip) {
+            minStrip = ds;
+            stripBest = { p1: strip[i], p2: strip[j] };
+          }
+          if (ds < globalBestDist) {
+            globalBestDist = ds;
+            globalBestPair = { p1: strip[i], p2: strip[j] };
+            logUpdateBest(strip[i], strip[j], ds, "strip", level);
+          }
+        }
+      }
+
+      return { dist: minStrip, pair: stripBest };
+    }
+
+    // Animasyon durumu
+    let stepIndex = 0;
+    let running = false;
+    let intervalId = null;
+
+    function renderStep(step) {
+      drawPoints();
+
+      let infoHtml = "";
+      let extraHtml = "";
+
+      if (step.type === "recurse") {
+        const { minX, maxX, level, text } = step;
+        // Bölgeyi göstermek için sadece dikey sınırları gösteriyoruz
+        drawVerticalLineAtX(minX, "#b388ff", [4, 4]);
+        drawVerticalLineAtX(maxX, "#b388ff", [4, 4]);
+        infoHtml =
+          `<span class="badge badge-recurse">Rekürsif çağrı</span> ` +
+          `Seviye ${level} – x ∈ [${minX}, ${maxX}]`;
+        extraHtml = text;
+      } else if (step.type === "stripRegion") {
+        const { midX, delta, level } = step;
+        drawStripRegion(midX, delta);
+        drawVerticalLineAtX(midX, "#ffa726", [6, 4]);
+        infoHtml =
+          `<span class="badge badge-strip">Strip bölgesi</span> ` +
+          `Seviye ${level} – orta dikmeye göre |x − ${midX}| &lt; d şeridi taranıyor.`;
+        extraHtml =
+          `Bu bölgede, sol ve sağ alt problemlerde bulunan en iyi mesafeden daha yakın bir çift olup olmadığı ` +
+          `kontrol edilir.`;
+      } else if (step.type === "check") {
+        const { p1, p2, dist, context, level, bestDist } = step;
+        // Şu an karşılaştırılan çift
+        const isStrip = context === "strip";
+        drawLineBetween(p1, p2, isStrip ? "#ff9800" : "#2b6eff", 3, [6, 4]);
+
+        if (globalBestPair) {
+          drawLineBetween(globalBestPair.p1, globalBestPair.p2, "#1eaa4b", 4);
+        }
+
+        let ctxText = "";
+        if (context === "bruteforce") {
+          ctxText = "Küçük alt kümede brute force karşılaştırması";
+        } else if (context === "strip") {
+          ctxText = "Strip içinde karşılaştırma";
+        } else {
+          ctxText = context;
+        }
+
+        infoHtml =
+          `<span class="badge badge-current">Karşılaştırma</span> ` +
+          `${p1.name}(${p1.x},${p1.y}) – ${p2.name}(${p2.x},${p2.y})<br>` +
+          `Mesafe: <code>d = ${formatNumber(dist)}</code>`;
+
+        extraHtml =
+          `${ctxText}. Seviye ${level}. ` +
+          `Bu adıma gelene kadar global en iyi mesafe: ` +
+          (bestDist === Infinity ? "—" : `<code>${formatNumber(bestDist)}</code>`);
+      } else if (step.type === "updateBest") {
+        const { p1, p2, dist, where, level } = step;
+        drawLineBetween(p1, p2, "#1eaa4b", 4);
+        infoHtml =
+          `<span class="badge badge-best">Yeni en iyi çift</span> ` +
+          `${p1.name} – ${p2.name}, mesafe: <code>${formatNumber(dist)}</code>`;
+        extraHtml =
+          `${where} sırasında, seviye ${level}'de global en iyi mesafe güncellendi.`;
+      } else if (step.type === "done") {
+        const { pair, dist } = step;
+        if (pair) {
+          drawLineBetween(pair.p1, pair.p2, "#1eaa4b", 4);
+        }
+        infoHtml =
+          `<span class="badge badge-best">Sonuç</span> ` +
+          `En yakın nokta çifti: ${pair.p1.name}(${pair.p1.x},${pair.p1.y}) – ` +
+          `${pair.p2.name}(${pair.p2.x},${pair.p2.y})`;
+        extraHtml =
+          `Bu çözüm, tüm kümeyi brute force ile kontrol etmeye göre ` +
+          `<code>O(n^2)</code> yerine yaklaşık <code>O(n log n)</code> karmaşıklığa sahiptir.`;
+      }
+
+      stepInfoEl.innerHTML = infoHtml || "—";
+      bestInfoEl.innerHTML = globalBestPair
+        ? `<span class="badge badge-best">Global en iyi</span> ` +
+          `${globalBestPair.p1.name} – ${globalBestPair.p2.name}, ` +
+          `mesafe: <code>${formatNumber(globalBestDist)}</code>`
+        : "En iyi mesafe: —";
+      extraInfoEl.innerHTML = extraHtml || "";
+      doneInfoEl.textContent = step.type === "done" ? "Animasyon tamamlandı ✔" : "";
+    }
+
+    function stepForward() {
+      if (!running) return;
+      if (stepIndex >= steps.length) {
+        running = false;
+        clearInterval(intervalId);
+        intervalId = null;
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        return;
+      }
+      const currentStep = steps[stepIndex];
+      renderStep(currentStep);
+      stepIndex++;
+    }
+
+    function startAnimation() {
+      if (running) return;
+      running = true;
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+      stepForward();
+      intervalId = setInterval(stepForward, 850);
+    }
+
+    function pauseAnimation() {
+      if (!running) return;
+      running = false;
+      pauseBtn.disabled = true;
+      startBtn.disabled = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    }
+
+    function resetAnimation() {
+      running = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      stepIndex = 0;
+      globalBestDist = Infinity;
+      globalBestPair = null;
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+      drawPoints();
+      stepInfoEl.innerHTML = `Hazırsan <strong>Başlat</strong> düğmesine tıkla.`;
+      bestInfoEl.textContent = "En iyi mesafe: —";
+      extraInfoEl.textContent = "";
+      doneInfoEl.textContent = "";
+    }
+
+    startBtn.addEventListener("click", startAnimation);
+    pauseBtn.addEventListener("click", pauseAnimation);
+    resetBtn.addEventListener("click", resetAnimation);
+
+    // Başlangıçta noktaları çiz
+    drawPoints();
+
+    // Sayfa yüklenirken D&C algoritmasını bir kez çalıştır ve adımları kaydet
+    (function prepareSteps() {
+      const Px = [...points].sort((a, b) => a.x - b.x);
+      const Py = [...points].sort((a, b) => a.y - b.y);
+      globalBestDist = Infinity;
+      globalBestPair = null;
+      steps.length = 0;
+      const res = closestPairDC(Px, Py, 0);
+      logDone(res.pair, res.dist);
+    })();
+  </script>
+</body>
+</html>
