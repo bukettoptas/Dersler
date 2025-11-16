@@ -14,8 +14,11 @@
 Hiçbir kurulum gerektirmez! Doğrudan şu linkten erişebilirsiniz:
 
 👉 [Sıralama ve Arama Algoritmaları ](https://bukettoptas.github.io/Dersler/algoritma_analizi/animasyonlar/sortingandsearch.html)
+
 👉 [En Yakın Nokta Çifti-böl ve yönet ile ](https://bukettoptas.github.io/Dersler/algoritma_analizi/animasyonlar/closest_pair_animation.html)
+
 👉 [En Yakın Nokta Çifti-kaba kuvvet ile ](https://bukettoptas.github.io/Dersler/algoritma_analizi/animasyonlar/closest_pair_bruteforce.html)
+
 👉 [Strassen Algoritması ](https://bukettoptas.github.io/Dersler/algoritma_analizi/animasyonlar/strassen_animation.html)
 
 ## 🤝 Katkıda Bulunma
