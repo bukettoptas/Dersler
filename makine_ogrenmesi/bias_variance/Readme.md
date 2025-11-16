@@ -240,7 +240,7 @@ print(f"Ortalama R²: {scores.mean():.4f} (±{scores.std():.4f})")
 ---
 ## 🐛 Sorun Bildirme
 
-Bir hata buldunuz mu? [Issue açın](https://github.com/bukettoptas/Dersler/makine_ogrenmesi/issues)
+Bir hata buldunuz mu? [Issue açın](https://github.com/bukettoptas/Dersler/issues)
 
 ---
 
