@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Visualizer - Full Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .algorithm-tabs {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .category-label {
+            width: 100%;
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-panel h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .array-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            min-height: 350px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .array-bar {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 5px;
+            border-radius: 5px 5px 0 0;
+            min-width: 50px;
+            max-width: 80px;
+            flex: 1;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .array-bar.comparing {
+            background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%);
+            transform: translateY(-10px);
+        }
+
+        .array-bar.swapping {
+            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+            transform: scale(1.1);
+        }
+
+        .array-bar.sorted {
+            background: linear-gradient(180deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .array-bar.searching {
+            background: linear-gradient(180deg, #fa709a 0%, #fee140 100%);
+            transform: translateY(-10px) scale(1.1);
+        }
+
+        .array-bar.found {
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            animation: pulse 0.5s ease-in-out 3;
+        }
+
+        .array-bar.pivot {
+            background: linear-gradient(180deg, #FA8BFF 0%, #2BD2FF 90%, #2BFF88 100%);
+        }
+
+        .array-bar.minimum {
+            background: linear-gradient(180deg, #08AEEA 0%, #2AF598 100%);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .merge-level {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+        }
+
+        .merge-group {
+            display: flex;
+            gap: 3px;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 2px solid #667eea;
+        }
+
+        .merge-bar {
+            min-width: 30px;
+            height: 40px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .merge-arrow {
+            font-size: 24px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+        }
+
+        .merge-visualization {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .merge-level-label {
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .merging {
+            animation: merge-pulse 0.5s ease-in-out;
+        }
+
+        @keyframes merge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); background: #43e97b; }
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .speed-control input[type="range"] {
+            width: 200px;
+        }
+
+        .array-size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .array-size-control input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .custom-array-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .custom-array-input input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .tree-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: auto;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .search-target {
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .array-bar {
+                min-width: 40px;
+                font-size: 12px;
+            }
+
+            .controls button {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Algorithm Visualizer</h1>
+        <p class="subtitle">Tum Arama ve Siralama Algoritmalari</p>
+
+        <div class="algorithm-tabs">
+            <div class="category-label" style="width: 100%;">ARAMA ALGORITMALARI</div>
+            <button class="tab-btn active" onclick="selectAlgorithm('linear')">Linear Search</button>
+            <button class="tab-btn" onclick="selectAlgorithm('binary')">Binary Search</button>
+            <button class="tab-btn" onclick="selectAlgorithm('bst')">BST</button>
+            
+            <div class="category-label">SIRALAMA ALGORITMALARI</div>
+            <button class="tab-btn" onclick="selectAlgorithm('selection')">Selection Sort</button>
+            <button class="tab-btn" onclick="selectAlgorithm('bubble')">Bubble Sort</button>
+            <button class="tab-btn" onclick="selectAlgorithm('insertion')">Insertion Sort</button>
+            <button class="tab-btn" onclick="selectAlgorithm('quick')">Quick Sort</button>
+            <button class="tab-btn" onclick="selectAlgorithm('merge')">Merge Sort</button>
+        </div>
+
+        <div class="info-panel">
+            <h3 id="algoName">Linear Search</h3>
+            <p id="algoDesc">Dizideki her elemani bastan sona kontrol eder.</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Karsilastirma</div>
+                    <div class="stat-value" id="comparisons">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Degis-Tokus</div>
+                    <div class="stat-value" id="swaps">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Zaman Karmasikligi</div>
+                    <div class="stat-value" id="complexity">O(n)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Alan Karmasikligi</div>
+                    <div class="stat-value" id="space">O(1)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="array-size-control">
+            <label>Dizi Boyutu:</label>
+            <input type="number" id="arraySize" value="10" min="5" max="50">
+            <button onclick="generateRandomArray()">Rastgele Olustur</button>
+        </div>
+
+        <div class="custom-array-input">
+            <label>Ozel Dizi (virgul ile ayirin):</label>
+            <input type="text" id="customArray" placeholder="64,34,25,12,22,11,90">
+            <button onclick="setCustomArray()">Uygula</button>
+        </div>
+
+        <div class="controls">
+            <button onclick="startAlgorithm()" id="startBtn">▶️ Baslat</button>
+            <button onclick="pauseAlgorithm()" id="pauseBtn" disabled>⏸️ Duraklat</button>
+            <button onclick="resetVisualization()">⏹️ Sifirla</button>
+            <button onclick="stepForward()" id="stepBtn" disabled>⏭️ Bir Adim</button>
+        </div>
+
+        <div class="speed-control">
+            <label>Hiz:</label>
+            <input type="range" min="1" max="100" value="50" id="speedSlider" oninput="updateSpeed(this.value)">
+            <span id="speedLabel">Orta</span>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);"></div>
+                <span>Normal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%);"></div>
+                <span>Karsilastiriliyor</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);"></div>
+                <span>Degis-tokus</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(180deg, #43e97b 0%, #38f9d7 100%);"></div>
+                <span>Sirali</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);"></div>
+                <span>Bulundu</span>
+            </div>
+        </div>
+
+        <div id="searchTarget" class="search-target" style="display: none;"></div>
+        <div class="array-container" id="arrayContainer"></div>
+        <div class="merge-visualization" id="mergeVisualization" style="display: none;"></div>
+        <div class="tree-container" id="treeContainer" style="display: none;"></div>
+
+        <div class="info-panel">
+            <h3>📝 Adim Aciklamasi</h3>
+            <p id="stepDesc">Baslatmak icin "Baslat" butonuna tiklayin.</p>
+        </div>
+    </div>
+
+    <script>
+        // Global degiskenler
+        let array = [64, 34, 25, 12, 22, 11, 90, 45, 33, 21];
+        let currentAlgorithm = 'linear';
+        let isRunning = false;
+        let isPaused = false;
+        let speed = 500;
+        let comparisons = 0;
+        let swaps = 0;
+        let bst = null;
+        let mergeLevels = [];
+        let mergeStep = 0;
+
+        // Algoritma bilgileri
+        const algorithmInfo = {
+            linear: {
+                name: 'Linear Search (Dogrusal Arama)',
+                desc: 'Dizideki her elemani bastan sona kontrol eder.',
+                time: 'O(n)',
+                space: 'O(1)'
+            },
+            binary: {
+                name: 'Binary Search (Ikili Arama)',
+                desc: 'Sirali dizide ortadan baslayarak arama yapar.',
+                time: 'O(log n)',
+                space: 'O(1)'
+            },
+            bst: {
+                name: 'Binary Search Tree',
+                desc: 'Ikili arama agaci yapisi kullanarak arama yapar.',
+                time: 'O(log n)',
+                space: 'O(n)'
+            },
+            selection: {
+                name: 'Selection Sort',
+                desc: 'Her adimda en kucuk elemani bulup yerini degistirir.',
+                time: 'O(n²)',
+                space: 'O(1)'
+            },
+            bubble: {
+                name: 'Bubble Sort',
+                desc: 'Komsu elemanlari karsilastirarak siralama yapar.',
+                time: 'O(n²)',
+                space: 'O(1)'
+            },
+            insertion: {
+                name: 'Insertion Sort',
+                desc: 'Her elemani sirali kisma dogru yere ekler.',
+                time: 'O(n²)',
+                space: 'O(1)'
+            },
+            quick: {
+                name: 'Quick Sort',
+                desc: 'Pivot secip diziyi ikiye bolerek siralar.',
+                time: 'O(n log n)',
+                space: 'O(log n)'
+            },
+            merge: {
+                name: 'Merge Sort',
+                desc: 'Diziyi ikiye bolup ayri ayri siralayip birlestirir.',
+                time: 'O(n log n)',
+                space: 'O(n)'
+            }
+        };
+
+        function selectAlgorithm(algo) {
+            currentAlgorithm = algo;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const info = algorithmInfo[algo];
+            document.getElementById('algoName').textContent = info.name;
+            document.getElementById('algoDesc').textContent = info.desc;
+            document.getElementById('complexity').textContent = info.time;
+            document.getElementById('space').textContent = info.space;
+
+            // Container'ları göster/gizle
+            document.getElementById('searchTarget').style.display = 'none';
+            
+            if (algo === 'bst') {
+                document.getElementById('arrayContainer').style.display = 'none';
+                document.getElementById('treeContainer').style.display = 'flex';
+                document.getElementById('mergeVisualization').style.display = 'none';
+            } else if (algo === 'merge') {
+                document.getElementById('arrayContainer').style.display = 'flex';
+                document.getElementById('treeContainer').style.display = 'none';
+                document.getElementById('mergeVisualization').style.display = 'block';
+            } else {
+                document.getElementById('arrayContainer').style.display = 'flex';
+                document.getElementById('treeContainer').style.display = 'none';
+                document.getElementById('mergeVisualization').style.display = 'none';
+            }
+
+            resetVisualization();
+        }
+
+        function updateSpeed(value) {
+            speed = 1000 - (value * 9);
+            const labels = ['Cok Yavas', 'Yavas', 'Orta', 'Hizli', 'Cok Hizli'];
+            const index = Math.floor(value / 20);
+            document.getElementById('speedLabel').textContent = labels[Math.min(index, 4)];
+        }
+
+        function generateRandomArray() {
+            const size = parseInt(document.getElementById('arraySize').value);
+            array = Array.from({length: size}, () => Math.floor(Math.random() * 90) + 10);
+            resetVisualization();
+        }
+
+        function setCustomArray() {
+            const input = document.getElementById('customArray').value;
+            const newArray = input.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (newArray.length > 0) {
+                array = newArray;
+                resetVisualization();
+            } else {
+                alert('Gecersiz dizi! Ornek: 64,34,25,12,22');
+            }
+        }
+
+        function renderArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            const maxValue = Math.max(...array);
+
+            array.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'array-bar';
+                bar.style.height = `${(value / maxValue) * 280}px`;
+                bar.textContent = value;
+                bar.id = `bar-${index}`;
+                container.appendChild(bar);
+            });
+        }
+
+        function showMergeVisualization() {
+            const container = document.getElementById('mergeVisualization');
+            const arrayContainer = document.getElementById('arrayContainer');
+            
+            if (currentAlgorithm === 'merge') {
+                container.style.display = 'block';
+                arrayContainer.style.display = 'flex';
+            } else {
+                container.style.display = 'none';
+                arrayContainer.style.display = 'flex';
+            }
+        }
+
+        function addMergeLevel(level, groups, description) {
+            const container = document.getElementById('mergeVisualization');
+            
+            const levelDiv = document.createElement('div');
+            levelDiv.className = 'merge-level';
+            levelDiv.id = `merge-level-${mergeStep}`;
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'merge-level-label';
+            labelDiv.textContent = description;
+            
+            const groupsContainer = document.createElement('div');
+            groupsContainer.style.display = 'flex';
+            groupsContainer.style.gap = '20px';
+            groupsContainer.style.justifyContent = 'center';
+            groupsContainer.style.flexWrap = 'wrap';
+            
+            groups.forEach((group, idx) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'merge-group';
+                
+                group.forEach(value => {
+                    const bar = document.createElement('div');
+                    bar.className = 'merge-bar';
+                    bar.textContent = value;
+                    groupDiv.appendChild(bar);
+                });
+                
+                groupsContainer.appendChild(groupDiv);
+                
+                if (idx < groups.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'merge-arrow';
+                    arrow.textContent = '→';
+                    groupsContainer.appendChild(arrow);
+                }
+            });
+            
+            container.appendChild(labelDiv);
+            container.appendChild(levelDiv);
+            levelDiv.appendChild(groupsContainer);
+            
+            mergeStep++;
+        }
+
+        function clearMergeVisualization() {
+            document.getElementById('mergeVisualization').innerHTML = '';
+            mergeLevels = [];
+            mergeStep = 0;
+        }
+
+        function resetVisualization() {
+            isRunning = false;
+            isPaused = false;
+            comparisons = 0;
+            swaps = 0;
+            updateStats();
+            
+            clearMergeVisualization();
+            document.getElementById('searchTarget').style.display = 'none';
+            
+            if (currentAlgorithm === 'bst') {
+                buildBST();
+            } else if (currentAlgorithm === 'merge') {
+                renderArray();
+                showMergeVisualization();
+            } else {
+                renderArray();
+            }
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+            document.getElementById('stepDesc').textContent = 'Baslatmak icin "Baslat" butonuna tiklayin.';
+        }
+
+        function updateStats() {
+            document.getElementById('comparisons').textContent = comparisons;
+            document.getElementById('swaps').textContent = swaps;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function startAlgorithm() {
+            if (isRunning) return;
+            isRunning = true;
+            isPaused = false;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = false;
+
+            switch(currentAlgorithm) {
+                case 'linear':
+                    const targetLinear = array[Math.floor(Math.random() * array.length)];
+                    await linearSearch(targetLinear);
+                    break;
+                case 'binary':
+                    array.sort((a, b) => a - b);
+                    renderArray();
+                    await sleep(1000);
+                    const targetBinary = array[Math.floor(Math.random() * array.length)];
+                    await binarySearch(targetBinary);
+                    break;
+                case 'bst':
+                    const targetBST = array[Math.floor(Math.random() * array.length)];
+                    await bstSearch(targetBST);
+                    break;
+                case 'selection':
+                    await selectionSort();
+                    break;
+                case 'bubble':
+                    await bubbleSort();
+                    break;
+                case 'insertion':
+                    await insertionSort();
+                    break;
+                case 'quick':
+                    await quickSort(0, array.length - 1);
+                    break;
+                case 'merge':
+                    clearMergeVisualization();
+                    await mergeSort(0, array.length - 1);
+                    break;
+            }
+
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+        }
+
+        function pauseAlgorithm() {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? '▶️ Devam Et' : '⏸️ Duraklat';
+        }
+
+        function stepForward() {
+            pauseAlgorithm();
+        }
+
+        // LINEAR SEARCH
+        async function linearSearch(target) {
+            const targetDiv = document.getElementById('searchTarget');
+            targetDiv.innerHTML = `🔍 ARANAN SAYI: ${target}`;
+            targetDiv.style.display = 'block';
+            
+            document.getElementById('stepDesc').textContent = `Aranan: ${target} - Aramaya başlıyoruz...`;
+            await sleep(speed * 1.5);
+            
+            for (let i = 0; i < array.length; i++) {
+                while (isPaused) await sleep(100);
+                
+                comparisons++;
+                updateStats();
+                
+                document.getElementById(`bar-${i}`).classList.add('searching');
+                document.getElementById('stepDesc').textContent = 
+                    `🔍 Aranan: ${target} | Kontrol: Index ${i} = ${array[i]}`;
+                
+                await sleep(speed);
+                
+                if (array[i] === target) {
+                    document.getElementById(`bar-${i}`).classList.remove('searching');
+                    document.getElementById(`bar-${i}`).classList.add('found');
+                    document.getElementById('stepDesc').innerHTML = 
+                        `✅ <span style="color: #43e97b; font-size: 20px;">${target} BULUNDU! Index: ${i}</span>`;
+                    return i;
+                }
+                
+                document.getElementById(`bar-${i}`).classList.remove('searching');
+            }
+            
+            document.getElementById('stepDesc').innerHTML = 
+                `❌ <span style="color: #f5576c; font-size: 20px;">${target} bulunamadı!</span>`;
+            return -1;
+        }
+
+        // BINARY SEARCH
+        async function binarySearch(target) {
+            const targetDiv = document.getElementById('searchTarget');
+            targetDiv.innerHTML = `🔍 ARANAN SAYI: ${target}`;
+            targetDiv.style.display = 'block';
+            
+            document.getElementById('stepDesc').textContent = 
+                `Aranan sayı: ${target} - Binary Search başlıyor...`;
+            
+            let left = 0;
+            let right = array.length - 1;
+            let step = 0;
+
+            while (left <= right) {
+                while (isPaused) await sleep(100);
+
+                step++;
+                const mid = Math.floor((left + right) / 2);
+
+                comparisons++;
+                updateStats();
+
+                document.getElementById(`bar-${mid}`).classList.add('searching');
+                document.getElementById('stepDesc').textContent = 
+                    `Adım ${step}: Sol=${left}, Sag=${right}, Orta=${mid}, Deger=${array[mid]}`;
+
+                await sleep(speed * 1.5);
+
+                if (array[mid] === target) {
+                    document.getElementById(`bar-${mid}`).classList.remove('searching');
+                    document.getElementById(`bar-${mid}`).classList.add('found');
+                    document.getElementById('stepDesc').innerHTML = 
+                        `✅ <span style="color: #43e97b; font-size: 20px;">${target} BULUNDU! Index: ${mid}</span>`;
+                    return mid;
+                } else if (array[mid] < target) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+
+                document.getElementById(`bar-${mid}`).classList.remove('searching');
+                await sleep(speed / 2);
+            }
+
+            document.getElementById('stepDesc').innerHTML = 
+                `❌ <span style="color: #f5576c; font-size: 20px;">${target} bulunamadı!</span>`;
+            return -1;
+        }
+
+        // SELECTION SORT
+        async function selectionSort() {
+            const n = array.length;
+
+            for (let i = 0; i < n - 1; i++) {
+                let minIdx = i;
+                document.getElementById('stepDesc').textContent = `Gecis ${i + 1}: En kucugu ariyoruz...`;
+                
+                document.getElementById(`bar-${i}`).classList.add('comparing');
+
+                for (let j = i + 1; j < n; j++) {
+                    while (isPaused) await sleep(100);
+                    
+                    comparisons++;
+                    updateStats();
+                    
+                    document.getElementById(`bar-${j}`).classList.add('searching');
+                    await sleep(speed);
+
+                    if (array[j] < array[minIdx]) {
+                        if (minIdx !== i) {
+                            document.getElementById(`bar-${minIdx}`).classList.remove('minimum');
+                        }
+                        minIdx = j;
+                        document.getElementById(`bar-${minIdx}`).classList.add('minimum');
+                    }
+                    
+                    document.getElementById(`bar-${j}`).classList.remove('searching');
+                }
+
+                if (minIdx !== i) {
+                    swaps++;
+                    updateStats();
+                    
+                    document.getElementById(`bar-${i}`).classList.add('swapping');
+                    document.getElementById(`bar-${minIdx}`).classList.add('swapping');
+                    
+                    [array[i], array[minIdx]] = [array[minIdx], array[i]];
+                    renderArray();
+                    
+                    await sleep(speed);
+                }
+
+                document.getElementById(`bar-${i}`).classList.remove('comparing', 'swapping', 'minimum');
+                document.getElementById(`bar-${i}`).classList.add('sorted');
+                if (minIdx !== i) {
+                    document.getElementById(`bar-${minIdx}`).classList.remove('minimum', 'swapping');
+                }
+            }
+
+            document.getElementById(`bar-${n - 1}`).classList.add('sorted');
+            document.getElementById('stepDesc').textContent = '✅ Siralama tamamlandi!';
+        }
+
+        // BUBBLE SORT
+        async function bubbleSort() {
+            const n = array.length;
+
+            for (let i = 0; i < n - 1; i++) {
+                document.getElementById('stepDesc').textContent = `Gecis ${i + 1}/${n - 1}`;
+                let swapped = false;
+
+                for (let j = 0; j < n - i - 1; j++) {
+                    while (isPaused) await sleep(100);
+
+                    comparisons++;
+                    updateStats();
+                    
+                    document.getElementById(`bar-${j}`).classList.add('comparing');
+                    document.getElementById(`bar-${j + 1}`).classList.add('comparing');
+                    await sleep(speed);
+
+                    if (array[j] > array[j + 1]) {
+                        swaps++;
+                        updateStats();
+                        swapped = true;
+                        
+                        document.getElementById(`bar-${j}`).classList.add('swapping');
+                        document.getElementById(`bar-${j + 1}`).classList.add('swapping');
+
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        renderArray();
+
+                        await sleep(speed);
+                    }
+
+                    document.getElementById(`bar-${j}`).classList.remove('comparing', 'swapping');
+                    document.getElementById(`bar-${j + 1}`).classList.remove('comparing', 'swapping');
+                }
+
+                document.getElementById(`bar-${n - i - 1}`).classList.add('sorted');
+                
+                if (!swapped) break;
+            }
+
+            document.getElementById(`bar-0`).classList.add('sorted');
+            document.getElementById('stepDesc').textContent = '✅ Siralama tamamlandi!';
+        }
+
+        // INSERTION SORT
+        async function insertionSort() {
+            const n = array.length;
+            document.getElementById(`bar-0`).classList.add('sorted');
+
+            for (let i = 1; i < n; i++) {
+                let key = array[i];
+                let j = i - 1;
+                
+                document.getElementById('stepDesc').textContent = 
+                    `Eleman ${key} icin dogru yer araniyor...`;
+                document.getElementById(`bar-${i}`).classList.add('searching');
+                await sleep(speed);
+
+                while (j >= 0 && array[j] > key) {
+                    while (isPaused) await sleep(100);
+                    
+                    comparisons++;
+                    swaps++;
+                    updateStats();
+                    
+                    document.getElementById(`bar-${j}`).classList.add('swapping');
+                    document.getElementById(`bar-${j + 1}`).classList.add('swapping');
+                    
+                    array[j + 1] = array[j];
+                    renderArray();
+                    await sleep(speed);
+                    
+                    document.getElementById(`bar-${j}`).classList.remove('swapping');
+                    document.getElementById(`bar-${j + 1}`).classList.remove('swapping');
+                    j--;
+                }
+
+                array[j + 1] = key;
+                renderArray();
+                
+                for (let k = 0; k <= i; k++) {
+                    document.getElementById(`bar-${k}`).classList.add('sorted');
+                }
+                
+                document.getElementById(`bar-${i}`).classList.remove('searching');
+                await sleep(speed / 2);
+            }
+
+            document.getElementById('stepDesc').textContent = '✅ Siralama tamamlandi!';
+        }
+
+        // QUICK SORT
+        async function quickSort(low, high) {
+            if (low < high) {
+                const pi = await partition(low, high);
+                await quickSort(low, pi - 1);
+                await quickSort(pi + 1, high);
+            } else if (low === high) {
+                document.getElementById(`bar-${low}`).classList.add('sorted');
+            }
+            
+            if (low === 0 && high === array.length - 1) {
+                document.getElementById('stepDesc').textContent = '✅ Siralama tamamlandi!';
+            }
+        }
+
+        async function partition(low, high) {
+            const pivot = array[high];
+            document.getElementById(`bar-${high}`).classList.add('pivot');
+            document.getElementById('stepDesc').textContent = `Pivot: ${pivot}`;
+            await sleep(speed);
+
+            let i = low - 1;
+
+            for (let j = low; j < high; j++) {
+                while (isPaused) await sleep(100);
+                
+                comparisons++;
+                updateStats();
+                
+                document.getElementById(`bar-${j}`).classList.add('comparing');
+                await sleep(speed);
+
+                if (array[j] <= pivot) {
+                    i++;
+                    if (i !== j) {
+                        swaps++;
+                        updateStats();
+                        
+                        document.getElementById(`bar-${i}`).classList.add('swapping');
+                        document.getElementById(`bar-${j}`).classList.add('swapping');
+                        
+                        [array[i], array[j]] = [array[j], array[i]];
+                        renderArray();
+                        await sleep(speed);
+                        
+                        document.getElementById(`bar-${i}`).classList.remove('swapping');
+                        document.getElementById(`bar-${j}`).classList.remove('swapping');
+                    }
+                }
+
+                document.getElementById(`bar-${j}`).classList.remove('comparing');
+            }
+
+            swaps++;
+            updateStats();
+            [array[i + 1], array[high]] = [array[high], array[i + 1]];
+            renderArray();
+            
+            document.getElementById(`bar-${high}`).classList.remove('pivot');
+            document.getElementById(`bar-${i + 1}`).classList.add('sorted');
+            await sleep(speed);
+
+            return i + 1;
+        }
+
+        // MERGE SORT
+        async function mergeSort(left, right) {
+            if (left < right) {
+                const mid = Math.floor((left + right) / 2);
+                
+                // Bölünme aşamasını göster
+                const leftPart = array.slice(left, mid + 1);
+                const rightPart = array.slice(mid + 1, right + 1);
+                
+                addMergeLevel(
+                    0,
+                    [leftPart, rightPart],
+                    `🔪 Bölünüyor: [${left}...${mid}] ve [${mid+1}...${right}]`
+                );
+                
+                document.getElementById('stepDesc').textContent = 
+                    `Bölünüyor: [${leftPart}] ve [${rightPart}]`;
+                await sleep(speed * 1.5);
+                
+                await mergeSort(left, mid);
+                await mergeSort(mid + 1, right);
+                await merge(left, mid, right);
+            }
+            
+            if (left === 0 && right === array.length - 1) {
+                for (let i = 0; i < array.length; i++) {
+                    document.getElementById(`bar-${i}`).classList.add('sorted');
+                }
+                
+                addMergeLevel(
+                    0,
+                    [array.slice()],
+                    `✅ TAMAMLANDI! Sıralı Dizi`
+                );
+                
+                document.getElementById('stepDesc').textContent = '✅ Merge Sort tamamlandı!';
+            }
+        }
+
+        async function merge(left, mid, right) {
+            const leftArr = array.slice(left, mid + 1);
+            const rightArr = array.slice(mid + 1, right + 1);
+            
+            // Birleştirme öncesi
+            addMergeLevel(
+                0,
+                [leftArr, rightArr],
+                `🔄 Birleştiriliyor: [${leftArr}] + [${rightArr}]`
+            );
+            
+            document.getElementById('stepDesc').textContent = 
+                `Birleştiriliyor: [${left}...${mid}] ve [${mid + 1}...${right}]`;
+            await sleep(speed);
+
+            let i = 0, j = 0, k = left;
+            const mergedArray = [];
+
+            while (i < leftArr.length && j < rightArr.length) {
+                while (isPaused) await sleep(100);
+                
+                comparisons++;
+                updateStats();
+                
+                document.getElementById(`bar-${k}`).classList.add('comparing');
+                await sleep(speed);
+
+                if (leftArr[i] <= rightArr[j]) {
+                    array[k] = leftArr[i];
+                    mergedArray.push(leftArr[i]);
+                    i++;
+                } else {
+                    array[k] = rightArr[j];
+                    mergedArray.push(rightArr[j]);
+                    j++;
+                }
+                
+                renderArray();
+                document.getElementById(`bar-${k}`).classList.remove('comparing');
+                document.getElementById(`bar-${k}`).classList.add('swapping');
+                await sleep(speed / 2);
+                document.getElementById(`bar-${k}`).classList.remove('swapping');
+                k++;
+            }
+
+            while (i < leftArr.length) {
+                array[k] = leftArr[i];
+                mergedArray.push(leftArr[i]);
+                renderArray();
+                i++;
+                k++;
+            }
+
+            while (j < rightArr.length) {
+                array[k] = rightArr[j];
+                mergedArray.push(rightArr[j]);
+                renderArray();
+                j++;
+                k++;
+            }
+            
+            // Birleştirme sonrası
+            addMergeLevel(
+                0,
+                [mergedArray],
+                `✓ Birleştirildi: [${mergedArray}]`
+            );
+            
+            await sleep(speed);
+        }
+
+        // BST Functions
+        class TreeNode {
+            constructor(value) {
+                this.value = value;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        function buildBST() {
+            bst = null;
+            array.forEach(value => {
+                bst = insertBST(bst, value);
+            });
+            visualizeBST();
+        }
+
+        function insertBST(node, value) {
+            if (node === null) {
+                return new TreeNode(value);
+            }
+            if (value < node.value) {
+                node.left = insertBST(node.left, value);
+            } else {
+                node.right = insertBST(node.right, value);
+            }
+            return node;
+        }
+
+        function visualizeBST() {
+            const container = document.getElementById('treeContainer');
+            container.innerHTML = '';
+            
+            if (!bst) {
+                container.innerHTML = '<p style="color: #667eea; font-size: 18px;">BST oluşturuluyor...</p>';
+                return;
+            }
+            
+            const width = container.clientWidth || 800;
+            const height = 400;
+            
+            const svg = d3.select('#treeContainer')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            const treeData = [];
+            const positions = {};
+            
+            function collectNodes(node, x = width/2, y = 50, level = 0, side = 0) {
+                if (!node) return;
+                
+                const id = `node-${node.value}`;
+                const offset = width / Math.pow(2, level + 2);
+                
+                treeData.push({
+                    id: id,
+                    value: node.value,
+                    x: x,
+                    y: y
+                });
+                
+                positions[id] = {x, y};
+                
+                if (node.left) {
+                    const leftX = x - offset;
+                    const leftY = y + 80;
+                    
+                    svg.append('line')
+                        .attr('x1', x)
+                        .attr('y1', y)
+                        .attr('x2', leftX)
+                        .attr('y2', leftY)
+                        .attr('stroke', '#667eea')
+                        .attr('stroke-width', 2);
+                    
+                    collectNodes(node.left, leftX, leftY, level + 1, -1);
+                }
+                
+                if (node.right) {
+                    const rightX = x + offset;
+                    const rightY = y + 80;
+                    
+                    svg.append('line')
+                        .attr('x1', x)
+                        .attr('y1', y)
+                        .attr('x2', rightX)
+                        .attr('y2', rightY)
+                        .attr('stroke', '#667eea')
+                        .attr('stroke-width', 2);
+                    
+                    collectNodes(node.right, rightX, rightY, level + 1, 1);
+                }
+            }
+            
+            collectNodes(bst);
+            
+            treeData.forEach(node => {
+                svg.append('circle')
+                    .attr('cx', node.x)
+                    .attr('cy', node.y)
+                    .attr('r', 25)
+                    .attr('fill', '#667eea')
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 2);
+                
+                svg.append('text')
+                    .attr('x', node.x)
+                    .attr('y', node.y + 5)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', 'white')
+                    .attr('font-size', '16px')
+                    .attr('font-weight', 'bold')
+                    .text(node.value);
+            });
+            
+            document.getElementById('stepDesc').textContent = 
+                `BST başarıyla oluşturuldu! ${treeData.length} düğüm mevcut.`;
+        }
+
+        async function bstSearch(target) {
+            const targetDiv = document.getElementById('searchTarget');
+            targetDiv.innerHTML = `🔍 ARANAN SAYI: ${target}`;
+            targetDiv.style.display = 'block';
+            
+            document.getElementById('stepDesc').textContent = 
+                `BST'de ${target} aranıyor...`;
+            
+            let current = bst;
+            let step = 0;
+            
+            while (current) {
+                step++;
+                comparisons++;
+                updateStats();
+                
+                document.getElementById('stepDesc').textContent = 
+                    `Adım ${step}: ${current.value} kontrol ediliyor... (Aranan: ${target})`;
+                
+                await sleep(speed * 1.5);
+                
+                if (current.value === target) {
+                    document.getElementById('stepDesc').innerHTML = 
+                        `✅ <span style="color: #43e97b; font-size: 20px;">${target} BULUNDU! ${step} adımda.</span>`;
+                    return true;
+                } else if (target < current.value) {
+                    document.getElementById('stepDesc').textContent = 
+                        `${target} < ${current.value}, sola gidiliyor...`;
+                    current = current.left;
+                } else {
+                    document.getElementById('stepDesc').textContent = 
+                        `${target} > ${current.value}, sağa gidiliyor...`;
+                    current = current.right;
+                }
+                
+                await sleep(speed);
+            }
+            
+            document.getElementById('stepDesc').innerHTML = 
+                `❌ <span style="color: #f5576c; font-size: 20px;">${target} bulunamadı!</span>`;
+            return false;
+        }
+
+        // İlk yükleme
+        renderArray();
+    </script>
+</body>
+</html>
