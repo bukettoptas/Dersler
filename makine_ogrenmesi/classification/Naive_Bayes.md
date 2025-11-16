@@ -35,7 +35,3 @@ $P(w_i | \text{Sınıf}) = \frac{\text{Sınıf içindeki } w_i \text{ sayısı}}
 **Laplace ile ($\alpha=1$):**
 $P(w_i | \text{Sınıf}) = \frac{(\text{Sınıf içindeki } w_i \text{ sayısı} + 1)}{(\text{Sınıf içindeki toplam kelime sayısı} + |V|)}$
 ($|V|$ = toplam eşsiz kelime sayısı / vocabulary size)
-
-## 📊 Simülasyonlar
-
-Laplace smoothing'in etkisini ve $\alpha$ parametresinin değişimini görmek için [`notebooks/2_naive_bayes_sims.ipynb`](../notebooks/2_naive_bayes_sims.ipynb) defterini inceleyin.
