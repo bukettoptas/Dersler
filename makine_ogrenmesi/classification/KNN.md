@@ -1,6 +1,6 @@
 # 🎯 K-En Yakın Komşu (KNN)
 
-[Ana Sayfaya Dön](../Readme)
+[Ana Sayfaya Dön](../Readme.md)
 
 ## 🤔 Temel Mantık
 
