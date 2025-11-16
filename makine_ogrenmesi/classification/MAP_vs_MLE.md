@@ -1,6 +1,6 @@
 # 🎯 MAP vs MLE
 
-[Ana Sayfaya Dön](../README.md)
+[Ana Sayfaya Dön](../Readme.md)
 
 ## 🤔 Temel Kavramlar
 
@@ -33,7 +33,3 @@ MAP, makine öğreniminde **Regularization** (Düzenlileştirme) işleminin ista
 * **L1 Regularization (Lasso):** Model ağırlıklarının **Laplace Prior** ($P(w)$) yani "ağırlıkların tam olarak 0 olmasının çok olası olduğu" ön bilgisiyle MAP tahmini yapmaktır.
 
 **Özetle:** MAP = Likelihood (Veri) + Prior (Düzenlileştirme).
-
-## 📊 Simülasyonlar
-
-Veri miktarı arttıkça MAP tahmininin nasıl MLE'ye yakınsadığını (Prior'un etkisinin azaldığını) gösteren simülasyonlar için [`notebooks/3_map_mle_sims.ipynb`](../notebooks/3_map_mle_sims.ipynb) defterini inceleyin.
