@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>En Yakın Nokta Çifti Animasyonu</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: #f9f9f9;
+            cursor: crosshair;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .primary-btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4);
+        }
+        .secondary-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .secondary-btn:hover {
+            background: #e0e0e0;
+        }
+        .info-panel {
+            background: #f8f9fa;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .step-info {
+            font-size: 18px;
+            font-weight: 600;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        .description {
+            color: #666;
+            line-height: 1.6;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #27ae60;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .comparison-title {
+            font-weight: 600;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        .highlight {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📍 En Yakın Nokta Çifti</h1>
+        <p class="subtitle">Böl ve Yönet ile Hızlı Çözüm - O(n log n)</p>
+
+        <div class="comparison">
+            <div class="comparison-box">
+                <div class="comparison-title">Naive Yöntem</div>
+                <div>Her noktayı tümüyle karşılaştır</div>
+                <div class="highlight">O(n²) karmaşıklık</div>
+            </div>
+            <div class="comparison-box">
+                <div class="comparison-title">Böl ve Yönet</div>
+                <div>Akıllı bölme ve birleştirme</div>
+                <div class="highlight">O(n log n) karmaşıklık</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="primary-btn" onclick="generateRandomPoints()">🎲 Rastgele Noktalar</button>
+            <button class="primary-btn" onclick="startAnimation()">▶ Algoritma Çalıştır</button>
+            <button class="secondary-btn" onclick="resetAnimation()">↺ Sıfırla</button>
+            <button class="secondary-btn" onclick="nextStep()">→ Sonraki Adım</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">Nokta Sayısı</div>
+                <div class="stat-value" id="pointCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">En Kısa Mesafe</div>
+                <div class="stat-value" id="minDistance">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Karşılaştırma</div>
+                <div class="stat-value" id="comparisons">0</div>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="canvas" width="800" height="500"></canvas>
+        </div>
+
+        <div class="info-panel">
+            <div class="step-info" id="stepTitle">Başlangıç</div>
+            <div class="description" id="stepDescription">
+                Canvas üzerine tıklayarak noktalar ekleyin veya "Rastgele Noktalar" butonuna basın.
+                Ardından "Algoritma Çalıştır" ile en yakın nokta çiftini bulun.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let points = [];
+        let currentStep = 0;
+        let animationRunning = false;
+        let animationInterval = null;
+        let steps = [];
+        let closestPair = null;
+        let minDist = Infinity;
+        let divisionLine = null;
+        let stripPoints = [];
+        let recursionDepth = 0;
+        let comparisons = 0;
+
+        canvas.addEventListener('click', (e) => {
+            if (animationRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            points.push({x, y, id: points.length});
+            updatePointCount();
+            drawPoints();
+        });
+
+        function updatePointCount() {
+            document.getElementById('pointCount').textContent = points.length;
+        }
+
+        function updateStats() {
+            document.getElementById('minDistance').textContent = 
+                minDist === Infinity ? '-' : minDist.toFixed(2);
+            document.getElementById('comparisons').textContent = comparisons;
+        }
+
+        function generateRandomPoints() {
+            points = [];
+            const numPoints = 15;
+            for (let i = 0; i < numPoints; i++) {
+                points.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: Math.random() * (canvas.height - 40) + 20,
+                    id: i
+                });
+            }
+            updatePointCount();
+            drawPoints();
+            resetAnimation();
+        }
+
+        function drawPoints() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Bölme çizgisi
+            if (divisionLine !== null) {
+                ctx.strokeStyle = '#3498db';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(divisionLine, 0);
+                ctx.lineTo(divisionLine, canvas.height);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Şerit alanı
+            if (stripPoints.length > 0 && minDist !== Infinity) {
+                ctx.fillStyle = 'rgba(241, 196, 15, 0.1)';
+                ctx.fillRect(divisionLine - minDist, 0, minDist * 2, canvas.height);
+            }
+
+            // En yakın çift çizgisi
+            if (closestPair) {
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(closestPair[0].x, closestPair[0].y);
+                ctx.lineTo(closestPair[1].x, closestPair[1].y);
+                ctx.stroke();
+            }
+
+            // Noktalar
+            points.forEach((point, idx) => {
+                const isInClosestPair = closestPair && 
+                    (closestPair[0].id === point.id || closestPair[1].id === point.id);
+                const isInStrip = stripPoints.some(p => p.id === point.id);
+
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, isInClosestPair ? 8 : 6, 0, Math.PI * 2);
+                ctx.fillStyle = isInClosestPair ? '#e74c3c' : 
+                               isInStrip ? '#f39c12' : '#27ae60';
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Nokta numarası
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(idx, point.x, point.y - 12);
+            });
+        }
+
+        function distance(p1, p2) {
+            comparisons++;
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function bruteForce(pts) {
+            let min = Infinity;
+            let pair = null;
+            
+            for (let i = 0; i < pts.length; i++) {
+                for (let j = i + 1; j < pts.length; j++) {
+                    const d = distance(pts[i], pts[j]);
+                    if (d < min) {
+                        min = d;
+                        pair = [pts[i], pts[j]];
+                    }
+                }
+            }
+            
+            return {distance: min, pair: pair};
+        }
+
+        function stripClosest(strip, d) {
+            let min = d;
+            let pair = null;
+            
+            // Y'ye göre sırala
+            strip.sort((a, b) => a.y - b.y);
+            
+            for (let i = 0; i < strip.length; i++) {
+                for (let j = i + 1; j < strip.length && (strip[j].y - strip[i].y) < min; j++) {
+                    const dist = distance(strip[i], strip[j]);
+                    if (dist < min) {
+                        min = dist;
+                        pair = [strip[i], strip[j]];
+                    }
+                }
+            }
+            
+            return {distance: min, pair: pair};
+        }
+
+        function closestPairRecursive(ptsX, ptsY, depth) {
+            const n = ptsX.length;
+            
+            // Temel durum: 3 veya daha az nokta
+            if (n <= 3) {
+                return bruteForce(ptsX);
+            }
+            
+            // Ortayı bul
+            const mid = Math.floor(n / 2);
+            const midPoint = ptsX[mid];
+            
+            // Bölme çizgisini göster
+            steps.push({
+                title: `Seviye ${depth}: ${n} noktayı böl`,
+                description: `Noktalar X ekseninde ortadan ikiye bölünüyor. Sol: ${mid} nokta, Sağ: ${n - mid} nokta`,
+                action: () => {
+                    divisionLine = midPoint.x;
+                    drawPoints();
+                }
+            });
+            
+            // Sol ve sağ parçalara böl
+            const ptsYLeft = ptsY.filter(p => p.x <= midPoint.x);
+            const ptsYRight = ptsY.filter(p => p.x > midPoint.x);
+            
+            // Recursive çağrılar
+            const leftResult = closestPairRecursive(ptsX.slice(0, mid), ptsYLeft, depth + 1);
+            const rightResult = closestPairRecursive(ptsX.slice(mid), ptsYRight, depth + 1);
+            
+            // Minimum mesafeyi bul
+            let d = leftResult.distance;
+            let currentPair = leftResult.pair;
+            
+            if (rightResult.distance < d) {
+                d = rightResult.distance;
+                currentPair = rightResult.pair;
+            }
+            
+            steps.push({
+                title: `Seviye ${depth}: Alt bölümlerin sonucu`,
+                description: `Sol minimum: ${leftResult.distance.toFixed(2)}, Sağ minimum: ${rightResult.distance.toFixed(2)}. Şu anki minimum: ${d.toFixed(2)}`,
+                action: () => {
+                    divisionLine = midPoint.x;
+                    closestPair = currentPair;
+                    minDist = d;
+                    updateStats();
+                    drawPoints();
+                }
+            });
+            
+            // Şerit bölgesindeki noktaları bul
+            const strip = [];
+            for (let p of ptsY) {
+                if (Math.abs(p.x - midPoint.x) < d) {
+                    strip.push(p);
+                }
+            }
+            
+            stripPoints = strip;
+            
+            if (strip.length > 0) {
+                steps.push({
+                    title: `Seviye ${depth}: Şerit kontrolü`,
+                    description: `${strip.length} nokta şerit bölgesinde (±${d.toFixed(2)} mesafede). Bu noktalar arasında daha yakın çift olabilir.`,
+                    action: () => {
+                        divisionLine = midPoint.x;
+                        stripPoints = strip;
+                        closestPair = currentPair;
+                        minDist = d;
+                        updateStats();
+                        drawPoints();
+                    }
+                });
+            }
+            
+            // Şeritte daha yakın çift var mı kontrol et
+            const stripResult = stripClosest(strip, d);
+            
+            if (stripResult.pair && stripResult.distance < d) {
+                currentPair = stripResult.pair;
+                d = stripResult.distance;
+                
+                steps.push({
+                    title: `Seviye ${depth}: Şeritte daha yakın çift bulundu!`,
+                    description: `Şerit kontrolünde ${d.toFixed(2)} mesafede yeni en yakın çift bulundu.`,
+                    action: () => {
+                        divisionLine = midPoint.x;
+                        stripPoints = strip;
+                        closestPair = currentPair;
+                        minDist = d;
+                        updateStats();
+                        drawPoints();
+                    }
+                });
+            }
+            
+            return {distance: d, pair: currentPair};
+        }
+
+        function findClosestPair() {
+            if (points.length < 2) {
+                alert('En az 2 nokta gerekli!');
+                return;
+            }
+            
+            comparisons = 0;
+            steps = [];
+            
+            // X ve Y'ye göre sıralı kopyalar
+            const ptsX = [...points].sort((a, b) => a.x - b.x);
+            const ptsY = [...points].sort((a, b) => a.y - b.y);
+            
+            steps.push({
+                title: 'Başlangıç: Noktaları sırala',
+                description: `${points.length} nokta X ve Y eksenlerine göre sıralandı. Algoritma başlıyor...`,
+                action: () => {
+                    divisionLine = null;
+                    stripPoints = [];
+                    closestPair = null;
+                    minDist = Infinity;
+                    updateStats();
+                    drawPoints();
+                }
+            });
+            
+            const result = closestPairRecursive(ptsX, ptsY, 0);
+            
+            steps.push({
+                title: '✅ Sonuç Bulundu!',
+                description: `En yakın nokta çifti ${result.distance.toFixed(2)} mesafede. Toplam ${comparisons} karşılaştırma yapıldı.`,
+                action: () => {
+                    divisionLine = null;
+                    stripPoints = [];
+                    closestPair = result.pair;
+                    minDist = result.distance;
+                    updateStats();
+                    drawPoints();
+                }
+            });
+            
+            return result;
+        }
+
+        function startAnimation() {
+            if (points.length < 2) {
+                alert('En az 2 nokta gerekli!');
+                return;
+            }
+            
+            if (animationRunning) return;
+            
+            findClosestPair();
+            animationRunning = true;
+            currentStep = 0;
+            
+            animationInterval = setInterval(() => {
+                updateStep();
+                currentStep++;
+                if (currentStep >= steps.length) {
+                    clearInterval(animationInterval);
+                    animationRunning = false;
+                }
+            }, 2000);
+        }
+
+        function resetAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+            animationRunning = false;
+            currentStep = 0;
+            steps = [];
+            closestPair = null;
+            minDist = Infinity;
+            divisionLine = null;
+            stripPoints = [];
+            comparisons = 0;
+            updateStats();
+            drawPoints();
+            document.getElementById('stepTitle').textContent = 'Başlangıç';
+            document.getElementById('stepDescription').textContent = 
+                'Canvas üzerine tıklayarak noktalar ekleyin veya "Rastgele Noktalar" butonuna basın.';
+        }
+
+        function nextStep() {
+            if (steps.length === 0) {
+                findClosestPair();
+            }
+            
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+                animationRunning = false;
+            }
+            
+            if (currentStep < steps.length) {
+                updateStep();
+                currentStep++;
+            }
+        }
+
+        function updateStep() {
+            if (currentStep < steps.length) {
+                const step = steps[currentStep];
+                document.getElementById('stepTitle').textContent = step.title;
+                document.getElementById('stepDescription').textContent = step.description;
+                step.action();
+            }
+        }
+
+        // İlk durumu göster
+        drawPoints();
+    </script>
+</body>
+</html>
