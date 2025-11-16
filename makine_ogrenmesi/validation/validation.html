@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 ML- Model Validation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .demo-container {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .demo-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .demo-section {
+            margin-bottom: 30px;
+        }
+
+        .demo-title {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .canvas-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .control-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            margin-top: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .visualization {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .viz-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .viz-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .split-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .split-view {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .epoch-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 ML- Model Validation</h1>
+            <p class="subtitle">Dr. Buket TOPTAŞ</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showDemo(0)">📊 Model Doğrulama</button>
+            <button class="tab" onclick="showDemo(1)">🔀 Eğitim-Test Ayrımı</button>
+            <button class="tab" onclick="showDemo(2)">🔄 Çapraz Doğrulama</button>
+            <button class="tab" onclick="showDemo(3)">🎯 Regülarizasyon</button>
+            <button class="tab" onclick="showDemo(4)">📉 Gradyan İniş</button>
+            <button class="tab" onclick="showDemo(5)">⏱️ Erken Durdurma</button>
+            <button class="tab" onclick="showDemo(6)">🌲 Rastgele Orman</button>
+        </div>
+
+        <!-- DEMO 1: Model Doğrulama -->
+        <div class="demo-container active" id="demo-0">
+            <h2 class="demo-title">📊 Model Doğrulama</h2>
+            
+            <div class="info-box">
+                <strong>Model doğrulama</strong>, makine öğrenmesi modelinin performansını ölçme ve gerçek dünya verilerine ne kadar iyi genelleme yaptığını belirleme sürecidir.
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>True Positives (TP)</span>
+                        <span class="control-value" id="tp-value">70</span>
+                    </div>
+                    <input type="range" id="tp-slider" min="0" max="100" value="70" oninput="updateConfusionMatrix()">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>False Positives (FP)</span>
+                        <span class="control-value" id="fp-value">10</span>
+                    </div>
+                    <input type="range" id="fp-slider" min="0" max="50" value="10" oninput="updateConfusionMatrix()">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>False Negatives (FN)</span>
+                        <span class="control-value" id="fn-value">15</span>
+                    </div>
+                    <input type="range" id="fn-slider" min="0" max="50" value="15" oninput="updateConfusionMatrix()">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>True Negatives (TN)</span>
+                        <span class="control-value" id="tn-value">80</span>
+                    </div>
+                    <input type="range" id="tn-slider" min="0" max="100" value="80" oninput="updateConfusionMatrix()">
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="confusion-matrix-canvas"></canvas>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Accuracy (Doğruluk)</div>
+                    <div class="metric-value" id="accuracy-metric">0.86</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Precision (Kesinlik)</div>
+                    <div class="metric-value" id="precision-metric">0.88</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Recall (Duyarlılık)</div>
+                    <div class="metric-value" id="recall-metric">0.82</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">F1-Score</div>
+                    <div class="metric-value" id="f1-metric">0.85</div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div># Metrik Formülleri:</div>
+                <div>Accuracy = (TP + TN) / (TP + TN + FP + FN)</div>
+                <div>Precision = TP / (TP + FP)</div>
+                <div>Recall = TP / (TP + FN)</div>
+                <div>F1-Score = 2 × (Precision × Recall) / (Precision + Recall)</div>
+            </div>
+        </div>
+
+        <!-- DEMO 2: Eğitim-Test Ayrımı -->
+        <div class="demo-container" id="demo-1">
+            <h2 class="demo-title">🔀 Eğitim-Test Ayrımı</h2>
+            
+            <div class="info-box">
+                Veri seti, modelin doğru değerlendirilmesi için <strong>eğitim</strong>, <strong>doğrulama</strong> ve <strong>test</strong> setlerine ayrılır.
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Eğitim Seti (%)</span>
+                        <span class="control-value" id="train-split-value">70</span>
+                    </div>
+                    <input type="range" id="train-split-slider" min="50" max="80" value="70" oninput="updateSplit()">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Doğrulama Seti (%)</span>
+                        <span class="control-value" id="val-split-value">15</span>
+                    </div>
+                    <input type="range" id="val-split-slider" min="10" max="30" value="15" oninput="updateSplit()">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Test Seti (%)</span>
+                        <span class="control-value" id="test-split-value">15</span>
+                    </div>
+                    <span style="font-size: 0.9em; color: #666;">Otomatik hesaplanır</span>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="split-canvas"></canvas>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Set Türü</th>
+                        <th>Oran</th>
+                        <th>Amaç</th>
+                        <th>Kullanım</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Eğitim Seti</strong></td>
+                        <td id="train-percentage">70%</td>
+                        <td>Model parametrelerini öğrenme</td>
+                        <td>Ağırlıkları güncelleme</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Doğrulama Seti</strong></td>
+                        <td id="val-percentage">15%</td>
+                        <td>Hiperparametre seçimi</td>
+                        <td>Model karşılaştırması</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Test Seti</strong></td>
+                        <td id="test-percentage">15%</td>
+                        <td>Final performans değerlendirmesi</td>
+                        <td>Gerçek dünya tahmini</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                ⚠️ <strong>Uyarı:</strong> Test setini asla model eğitimi veya hiperparametre seçiminde kullanmayın! Bu "data leakage" problemine yol açar.
+            </div>
+        </div>
+
+        <!-- DEMO 3: Çapraz Doğrulama -->
+        <div class="demo-container" id="demo-2">
+            <h2 class="demo-title">🔄 Çapraz Doğrulama (K-Fold Cross-Validation)</h2>
+            
+            <div class="info-box">
+                K-Fold CV, veriyi K parçaya böler ve her iterasyonda farklı bir parçayı test için kullanır. Bu sayede tüm veri hem eğitim hem test için kullanılır.
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>K Değeri (Fold Sayısı)</span>
+                        <span class="control-value" id="k-fold-value">5</span>
+                    </div>
+                    <input type="range" id="k-fold-slider" min="2" max="10" value="5" oninput="updateKFold()">
+                </div>
+                <div class="control-group">
+                    <button class="btn-primary" onclick="animateCrossValidation()">▶️ Animasyonu Başlat</button>
+                </div>
+            </div>
+
+            <div class="epoch-display">
+                İterasyon: <span id="cv-iteration">1</span> / <span id="cv-total">5</span>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="cv-canvas"></canvas>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4CAF50;"></div>
+                    <span>Eğitim Seti</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FF9800;"></div>
+                    <span>Test Seti</span>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Ortalama Skor</div>
+                    <div class="metric-value" id="cv-mean-score">0.87</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Standart Sapma</div>
+                    <div class="metric-value" id="cv-std">0.03</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">En İyi Skor</div>
+                    <div class="metric-value" id="cv-best">0.91</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">En Kötü Skor</div>
+                    <div class="metric-value" id="cv-worst">0.82</div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                ✅ <strong>Avantaj:</strong> Her örnek hem eğitim hem test için kullanılır, daha güvenilir performans tahmini sağlar.
+            </div>
+        </div>
+
+        <!-- DEMO 4: Regülarizasyon -->
+        <div class="demo-container" id="demo-3">
+            <h2 class="demo-title">🎯 Regülarizasyon (L1 vs L2)</h2>
+            
+            <div class="info-box">
+                Regülarizasyon, model ağırlıklarına ceza ekleyerek overfitting'i önler. L1 özellik seçimi yapar, L2 ağırlıkları küçültür.
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Lambda (λ) - Regülarizasyon Gücü</span>
+                        <span class="control-value" id="lambda-value">1.0</span>
+                    </div>
+                    <input type="range" id="lambda-slider" min="0" max="10" step="0.1" value="1" oninput="updateRegularization()">
+                </div>
+                <div class="control-group">
+                    <label>
+                        <input type="radio" name="reg-type" value="l1" onchange="updateRegularization()" checked> L1 (Lasso)
+                    </label>
+                    <label>
+                        <input type="radio" name="reg-type" value="l2" onchange="updateRegularization()"> L2 (Ridge)
+                    </label>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="regularization-canvas"></canvas>
+            </div>
+
+            <div class="split-view">
+                <div class="viz-card">
+                    <div class="viz-title">L1 Regülarizasyon (Lasso)</div>
+                    <div class="code-block">
+                        L1 = λ × Σ|wi|<br>
+                        Cost = MSE + L1
+                    </div>
+                    <ul style="text-align: left; padding: 20px;">
+                        <li>✅ Özellik seçimi yapar</li>
+                        <li>✅ Seyrek modeller oluşturur</li>
+                        <li>❌ Bazı ağırlıkları sıfırlar</li>
+                    </ul>
+                </div>
+                <div class="viz-card">
+                    <div class="viz-title">L2 Regülarizasyon (Ridge)</div>
+                    <div class="code-block">
+                        L2 = λ × Σ(wi²)<br>
+                        Cost = MSE + L2
+                    </div>
+                    <ul style="text-align: left; padding: 20px;">
+                        <li>✅ Tüm özellikleri korur</li>
+                        <li>✅ Ağırlıkları küçültür</li>
+                        <li>❌ Özellik seçimi yapmaz</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Sıfır Olmayan Özellikler</div>
+                    <div class="metric-value" id="nonzero-features">8</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Ortalama Ağırlık</div>
+                    <div class="metric-value" id="avg-weight">0.15</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEMO 5: Gradyan İniş -->
+        <div class="demo-container" id="demo-4">
+            <h2 class="demo-title">📉 Gradyan İniş Optimizasyonu</h2>
+            
+            <div class="info-box">
+                Gradyan iniş, maliyet fonksiyonunu minimize etmek için parametreleri iteratif olarak günceller: <strong>θ = θ - α × ∇J(θ)</strong>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Learning Rate (α)</span>
+                        <span class="control-value" id="lr-value">0.1</span>
+                    </div>
+                    <input type="range" id="lr-slider" min="0.01" max="1" step="0.01" value="0.1" oninput="updateLearningRate()">
+                </div>
+                <div class="control-group">
+                    <button class="btn-primary" onclick="startGradientDescent()">▶️ Başlat</button>
+                    <button class="btn-secondary" onclick="resetGradientDescent()">🔄 Sıfırla</button>
+                </div>
+            </div>
+
+            <div class="epoch-display">
+                Epoch: <span id="gd-epoch">0</span> | Loss: <span id="gd-loss">1.00</span>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="gradient-descent-canvas"></canvas>
+            </div>
+
+            <div class="split-view">
+                <div class="viz-card">
+                    <div class="viz-title">Learning Rate Çok Küçük</div>
+                    <div>🐌 Çok yavaş yakınsama</div>
+                    <div>⏱️ Uzun eğitim süresi</div>
+                </div>
+                <div class="viz-card">
+                    <div class="viz-title">Learning Rate Çok Büyük</div>
+                    <div>💥 Divergence (sapma)</div>
+                    <div>❌ Minimum'a ulaşamama</div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                ✅ <strong>Optimal Learning Rate:</strong> Hızlı ama stabil yakınsama sağlar. Genelde 0.001 - 0.1 arası değerler iyi çalışır.
+            </div>
+        </div>
+
+        <!-- DEMO 6: Erken Durdurma -->
+        <div class="demo-container" id="demo-5">
+            <h2 class="demo-title">⏱️ Erken Durdurma (Early Stopping)</h2>
+            
+            <div class="info-box">
+                Validation loss artmaya başladığında eğitimi durdurarak overfitting'i önler.
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Patience (Sabır)</span>
+                        <span class="control-value" id="patience-value">5</span>
+                    </div>
+                    <input type="range" id="patience-slider" min="1" max="20" value="5" oninput="updatePatience()">
+                </div>
+                <div class="control-group">
+                    <button class="btn-primary" onclick="startTraining()">▶️ Eğitimi Başlat</button>
+                    <button class="btn-secondary" onclick="resetTraining()">🔄 Sıfırla</button>
+                </div>
+            </div>
+
+            <div class="epoch-display">
+                Epoch: <span id="es-epoch">0</span> / 100 | Patience Counter: <span id="es-patience-counter">0</span>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="early-stopping-canvas"></canvas>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2196F3;"></div>
+                    <span>Training Loss</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FF5722;"></div>
+                    <span>Validation Loss</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4CAF50;"></div>
+                    <span>En İyi Model</span>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">En İyi Epoch</div>
+                    <div class="metric-value" id="best-epoch">-</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">En İyi Val Loss</div>
+                    <div class="metric-value" id="best-val-loss">-</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Durduğu Epoch</div>
+                    <div class="metric-value" id="stopped-epoch">-</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Kazanılan Zaman</div>
+                    <div class="metric-value" id="time-saved">-</div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                ⚠️ Patience değeri çok küçükse model erken durabilir. Çok büyükse overfitting riski artar.
+            </div>
+        </div>
+
+        <!-- DEMO 7: Rastgele Orman -->
+        <div class="demo-container" id="demo-6">
+            <h2 class="demo-title">🌲 Rastgele Orman (Random Forest)</h2>
+            
+            <div class="info-box">
+                Rastgele Orman, birden fazla karar ağacını birleştirerek güçlü tahminler yapar. Her ağaç farklı veri alt kümesi ve özellik alt kümesi kullanır.
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Ağaç Sayısı (n_estimators)</span>
+                        <span class="control-value" id="n-trees-value">5</span>
+                    </div>
+                    <input type="range" id="n-trees-slider" min="1" max="20" value="5" oninput="updateRandomForest()">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Max Depth</span>
+                        <span class="control-value" id="max-depth-value">5</span>
+                    </div>
+                    <input type="range" id="max-depth-slider" min="2" max="10" value="5" oninput="updateRandomForest()">
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="random-forest-canvas"></canvas>
+            </div>
+
+            <div class="visualization">
+                <div class="viz-card">
+                    <div class="viz-title">🎯 Bagging</div>
+                    <p>Bootstrap sampling ile her ağaç farklı veri alt kümesi görür</p>
+                </div>
+                <div class="viz-card">
+                    <div class="viz-title">🎲 Feature Randomness</div>
+                    <p>Her düğümde rastgele özellik alt kümesi kullanılır</p>
+                </div>
+                <div class="viz-card">
+                    <div class="viz-title">🗳️ Voting</div>
+                    <p>Sınıflandırma: Çoğunluk oyu<br>Regresyon: Ortalama</p>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Accuracy</div>
+                    <div class="metric-value" id="rf-accuracy">0.92</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">OOB Score</div>
+                    <div class="metric-value" id="rf-oob">0.89</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Top Feature</div>
+                    <div class="metric-value" id="rf-top-feature">Feature 1</div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Özellik</th>
+                        <th>Avantajlar</th>
+                        <th>Dezavantajlar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Performans</strong></td>
+                        <td>✅ Yüksek doğruluk</td>
+                        <td>❌ Büyük model boyutu</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Overfitting</strong></td>
+                        <td>✅ Direnç gösterir</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Yorumlanabilirlik</strong></td>
+                        <td>✅ Feature importance</td>
+                        <td>❌ Black-box model</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Eğitim</strong></td>
+                        <td>✅ Paralel eğitim</td>
+                        <td>❌ Tahmin yavaş</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Global değişkenler
+        let currentDemo = 0;
+        let animationRunning = false;
+
+        // Tab değiştirme
+        function showDemo(index) {
+            document.querySelectorAll('.demo-container').forEach(demo => {
+                demo.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(`demo-${index}`).classList.add('active');
+            document.querySelectorAll('.tab')[index].classList.add('active');
+            currentDemo = index;
+            
+            // Canvas'ları yeniden boyutlandır
+            setTimeout(() => {
+                initCurrentDemo();
+            }, 100);
+        }
+
+        function initCurrentDemo() {
+            switch(currentDemo) {
+                case 0: updateConfusionMatrix(); break;
+                case 1: updateSplit(); break;
+                case 2: updateKFold(); break;
+                case 3: updateRegularization(); break;
+                case 4: drawGradientDescentCanvas(); break;
+                case 5: drawEarlyStoppingCanvas(); break;
+                case 6: updateRandomForest(); break;
+            }
+        }
+
+        // DEMO 1: Model Doğrulama
+        function updateConfusionMatrix() {
+            const tp = parseInt(document.getElementById('tp-slider').value);
+            const fp = parseInt(document.getElementById('fp-slider').value);
+            const fn = parseInt(document.getElementById('fn-slider').value);
+            const tn = parseInt(document.getElementById('tn-slider').value);
+            
+            document.getElementById('tp-value').textContent = tp;
+            document.getElementById('fp-value').textContent = fp;
+            document.getElementById('fn-value').textContent = fn;
+            document.getElementById('tn-value').textContent = tn;
+            
+            // Metrikler
+            const accuracy = (tp + tn) / (tp + tn + fp + fn);
+            const precision = tp / (tp + fp);
+            const recall = tp / (tp + fn);
+            const f1 = 2 * (precision * recall) / (precision + recall);
+            
+            document.getElementById('accuracy-metric').textContent = accuracy.toFixed(2);
+            document.getElementById('precision-metric').textContent = precision.toFixed(2);
+            document.getElementById('recall-metric').textContent = recall.toFixed(2);
+            document.getElementById('f1-metric').textContent = f1.toFixed(2);
+            
+            // Canvas çizimi
+            drawConfusionMatrix(tp, fp, fn, tn);
+        }
+
+        function drawConfusionMatrix(tp, fp, fn, tn) {
+            const canvas = document.getElementById('confusion-matrix-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const cellWidth = canvas.width / 3;
+            const cellHeight = canvas.height / 3;
+            
+            // Başlıklar
+            ctx.font = 'bold 20px Arial';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.fillText('Tahmin Pozitif', cellWidth * 1.5, 40);
+            ctx.fillText('Tahmin Negatif', cellWidth * 2.5, 40);
+            
+            ctx.save();
+            ctx.translate(40, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Gerçek Pozitif', 0, 0);
+            ctx.restore();
+            
+            ctx.save();
+            ctx.translate(40, canvas.height / 2 + cellHeight);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Gerçek Negatif', 0, 0);
+            ctx.restore();
+            
+            // Hücreler
+            const cells = [
+                { value: tp, x: cellWidth, y: cellHeight, color: '#4CAF50', label: 'TP' },
+                { value: fn, x: cellWidth * 2, y: cellHeight, color: '#FF5722', label: 'FN' },
+                { value: fp, x: cellWidth, y: cellHeight * 2, color: '#FF9800', label: 'FP' },
+                { value: tn, x: cellWidth * 2, y: cellHeight * 2, color: '#2196F3', label: 'TN' }
+            ];
+            
+            cells.forEach(cell => {
+                ctx.fillStyle = cell.color;
+                ctx.fillRect(cell.x, cell.y, cellWidth - 10, cellHeight - 10);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 48px Arial';
+                ctx.fillText(cell.value, cell.x + cellWidth / 2 - 5, cell.y + cellHeight / 2);
+                
+                ctx.font = 'bold 24px Arial';
+                ctx.fillText(cell.label, cell.x + cellWidth / 2 - 5, cell.y + cellHeight / 2 + 40);
+            });
+        }
+
+        // DEMO 2: Eğitim-Test Ayrımı
+        function updateSplit() {
+            const train = parseInt(document.getElementById('train-split-slider').value);
+            const val = parseInt(document.getElementById('val-split-slider').value);
+            const test = 100 - train - val;
+            
+            document.getElementById('train-split-value').textContent = train;
+            document.getElementById('val-split-value').textContent = val;
+            document.getElementById('test-split-value').textContent = test;
+            
+            document.getElementById('train-percentage').textContent = train + '%';
+            document.getElementById('val-percentage').textContent = val + '%';
+            document.getElementById('test-percentage').textContent = test + '%';
+            
+            drawSplit(train, val, test);
+        }
+
+        function drawSplit(train, val, test) {
+            const canvas = document.getElementById('split-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const totalWidth = canvas.width - 100;
+            const startX = 50;
+            const barHeight = 100;
+            const barY = canvas.height / 2 - barHeight / 2;
+            
+            const trainWidth = (train / 100) * totalWidth;
+            const valWidth = (val / 100) * totalWidth;
+            const testWidth = (test / 100) * totalWidth;
+            
+            // Eğitim seti
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(startX, barY, trainWidth, barHeight);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Eğitim ${train}%`, startX + trainWidth / 2, barY + barHeight / 2 + 7);
+            
+            // Doğrulama seti
+            ctx.fillStyle = '#FF9800';
+            ctx.fillRect(startX + trainWidth, barY, valWidth, barHeight);
+            ctx.fillStyle = 'white';
+            ctx.fillText(`Doğrulama ${val}%`, startX + trainWidth + valWidth / 2, barY + barHeight / 2 + 7);
+            
+            // Test seti
+            ctx.fillStyle = '#2196F3';
+            ctx.fillRect(startX + trainWidth + valWidth, barY, testWidth, barHeight);
+            ctx.fillStyle = 'white';
+            ctx.fillText(`Test ${test}%`, startX + trainWidth + valWidth + testWidth / 2, barY + barHeight / 2 + 7);
+        }
+
+        // DEMO 3: Çapraz Doğrulama
+        let cvIteration = 1;
+        let cvAnimationId;
+
+        function updateKFold() {
+            const k = parseInt(document.getElementById('k-fold-slider').value);
+            document.getElementById('k-fold-value').textContent = k;
+            document.getElementById('cv-total').textContent = k;
+            cvIteration = 1;
+            document.getElementById('cv-iteration').textContent = cvIteration;
+            drawCrossValidation(k, cvIteration);
+            
+            // Rastgele skorlar üret
+            const scores = Array.from({ length: k }, () => 0.75 + Math.random() * 0.20);
+            const mean = scores.reduce((a, b) => a + b) / k;
+            const std = Math.sqrt(scores.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / k);
+            
+            document.getElementById('cv-mean-score').textContent = mean.toFixed(2);
+            document.getElementById('cv-std').textContent = std.toFixed(2);
+            document.getElementById('cv-best').textContent = Math.max(...scores).toFixed(2);
+            document.getElementById('cv-worst').textContent = Math.min(...scores).toFixed(2);
+        }
+
+        function animateCrossValidation() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            const k = parseInt(document.getElementById('k-fold-slider').value);
+            cvIteration = 1;
+            
+            cvAnimationId = setInterval(() => {
+                document.getElementById('cv-iteration').textContent = cvIteration;
+                drawCrossValidation(k, cvIteration);
+                cvIteration++;
+                if (cvIteration > k) {
+                    clearInterval(cvAnimationId);
+                    animationRunning = false;
+                    cvIteration = 1;
+                }
+            }, 1000);
+        }
+
+        function drawCrossValidation(k, currentFold) {
+            const canvas = document.getElementById('cv-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const foldWidth = (canvas.width - 100) / k;
+            const startX = 50;
+            const barHeight = 80;
+            
+            for (let i = 0; i < k; i++) {
+                const x = startX + i * foldWidth;
+                const y = canvas.height / 2 - barHeight / 2;
+                
+                if (i + 1 === currentFold) {
+                    ctx.fillStyle = '#FF9800'; // Test
+                } else {
+                    ctx.fillStyle = '#4CAF50'; // Train
+                }
+                
+                ctx.fillRect(x, y, foldWidth - 5, barHeight);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, foldWidth - 5, barHeight);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Fold ${i + 1}`, x + foldWidth / 2 - 2.5, y + barHeight / 2 + 5);
+            }
+        }
+
+        // DEMO 4: Regülarizasyon
+        function updateRegularization() {
+            const lambda = parseFloat(document.getElementById('lambda-slider').value);
+            document.getElementById('lambda-value').textContent = lambda.toFixed(1);
+            
+            const regType = document.querySelector('input[name="reg-type"]:checked').value;
+            drawRegularization(lambda, regType);
+            
+            // Metrikler
+            const nonzero = regType === 'l1' ? Math.max(1, 10 - Math.floor(lambda)) : 10;
+            const avgWeight = Math.max(0.05, 0.5 / (1 + lambda));
+            
+            document.getElementById('nonzero-features').textContent = nonzero;
+            document.getElementById('avg-weight').textContent = avgWeight.toFixed(2);
+        }
+
+        function drawRegularization(lambda, type) {
+            const canvas = document.getElementById('regularization-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Ağırlık gösterimi
+            const numWeights = 10;
+            const barWidth = (canvas.width - 100) / numWeights;
+            const startX = 50;
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Özellik Ağırlıkları', canvas.width / 2, 30);
+            
+            for (let i = 0; i < numWeights; i++) {
+                let height;
+                if (type === 'l1') {
+                    // L1: Bazı ağırlıklar sıfırlanır
+                    height = i < Math.floor(lambda) ? 0 : (canvas.height - 100) * (0.3 + Math.random() * 0.4) / (1 + lambda * 0.2);
+                } else {
+                    // L2: Tüm ağırlıklar küçülür
+                    height = (canvas.height - 100) * (0.3 + Math.random() * 0.4) / (1 + lambda * 0.3);
+                }
+                
+                const x = startX + i * barWidth;
+                const y = canvas.height - 50 - height;
+                
+                ctx.fillStyle = height > 0 ? '#667eea' : '#ddd';
+                ctx.fillRect(x, y, barWidth - 10, height);
+                
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.fillText(`W${i+1}`, x + barWidth / 2 - 5, canvas.height - 30);
+            }
+        }
+
+        // DEMO 5: Gradyan İniş
+        let gdPosition = { x: 0.8, y: 0.8 };
+        let gdAnimationId;
+
+        function updateLearningRate() {
+            const lr = parseFloat(document.getElementById('lr-slider').value);
+            document.getElementById('lr-value').textContent = lr.toFixed(2);
+        }
+
+        function startGradientDescent() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            const lr = parseFloat(document.getElementById('lr-slider').value);
+            let epoch = 0;
+            
+            gdAnimationId = setInterval(() => {
+                // Gradyan güncelleme
+                const gradient = computeGradient(gdPosition.x, gdPosition.y);
+                gdPosition.x -= lr * gradient.x;
+                gdPosition.y -= lr * gradient.y;
+                
+                // Sınırları kontrol et
+                gdPosition.x = Math.max(0, Math.min(1, gdPosition.x));
+                gdPosition.y = Math.max(0, Math.min(1, gdPosition.y));
+                
+                epoch++;
+                const loss = computeLoss(gdPosition.x, gdPosition.y);
+                
+                document.getElementById('gd-epoch').textContent = epoch;
+                document.getElementById('gd-loss').textContent = loss.toFixed(2);
+                
+                drawGradientDescentCanvas();
+                
+                if (loss < 0.05 || epoch > 100) {
+                    clearInterval(gdAnimationId);
+                    animationRunning = false;
+                }
+            }, 100);
+        }
+
+        function resetGradientDescent() {
+            clearInterval(gdAnimationId);
+            animationRunning = false;
+            gdPosition = { x: 0.8, y: 0.8 };
+            document.getElementById('gd-epoch').textContent = 0;
+            document.getElementById('gd-loss').textContent = '1.00';
+            drawGradientDescentCanvas();
+        }
+
+        function computeGradient(x, y) {
+            // Basit parabolik fonksiyon için gradyan
+            return {
+                x: 2 * (x - 0.5),
+                y: 2 * (y - 0.5)
+            };
+        }
+
+        function computeLoss(x, y) {
+            return Math.pow(x - 0.5, 2) + Math.pow(y - 0.5, 2);
+        }
+
+        function drawGradientDescentCanvas() {
+            const canvas = document.getElementById('gradient-descent-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Contour plot (sadeleştirilmiş)
+            for (let i = 0; i < 10; i++) {
+                const radius = 50 + i * 30;
+                ctx.strokeStyle = `rgba(102, 126, 234, ${0.3 - i * 0.02})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Minimum noktası
+            ctx.fillStyle = '#4CAF50';
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Mevcut pozisyon
+            const screenX = gdPosition.x * canvas.width;
+            const screenY = gdPosition.y * canvas.height;
+            
+            ctx.fillStyle = '#FF5722';
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        // DEMO 6: Erken Durdurma
+        let trainingData = { train: [], val: [] };
+        let trainingEpoch = 0;
+        let trainingAnimationId;
+        let bestEpoch = -1;
+        let bestValLoss = Infinity;
+        let patienceCounter = 0;
+
+        function updatePatience() {
+            const patience = parseInt(document.getElementById('patience-slider').value);
+            document.getElementById('patience-value').textContent = patience;
+        }
+
+        function startTraining() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            trainingData = { train: [], val: [] };
+            trainingEpoch = 0;
+            bestEpoch = -1;
+            bestValLoss = Infinity;
+            patienceCounter = 0;
+            
+            const patience = parseInt(document.getElementById('patience-slider').value);
+            
+            trainingAnimationId = setInterval(() => {
+                trainingEpoch++;
+                
+                // Loss simülasyonu
+                const trainLoss = 1.0 * Math.exp(-trainingEpoch * 0.08) + Math.random() * 0.05;
+                const valLoss = trainLoss + 0.1 + (trainingEpoch > 40 ? (trainingEpoch - 40) * 0.015 : 0) + Math.random() * 0.1;
+                
+                trainingData.train.push(trainLoss);
+                trainingData.val.push(valLoss);
+                
+                // Early stopping logic
+                if (valLoss < bestValLoss) {
+                    bestValLoss = valLoss;
+                    bestEpoch = trainingEpoch;
+                    patienceCounter = 0;
+                } else {
+                    patienceCounter++;
+                }
+                
+                document.getElementById('es-epoch').textContent = trainingEpoch;
+                document.getElementById('es-patience-counter').textContent = patienceCounter;
+                document.getElementById('best-epoch').textContent = bestEpoch;
+                document.getElementById('best-val-loss').textContent = bestValLoss.toFixed(3);
+                
+                drawEarlyStoppingCanvas();
+                
+                if (patienceCounter >= patience || trainingEpoch >= 100) {
+                    clearInterval(trainingAnimationId);
+                    animationRunning = false;
+                    document.getElementById('stopped-epoch').textContent = trainingEpoch;
+                    document.getElementById('time-saved').textContent = `${100 - trainingEpoch} epochs`;
+                }
+            }, 100);
+        }
+
+        function resetTraining() {
+            clearInterval(trainingAnimationId);
+            animationRunning = false;
+            trainingData = { train: [], val: [] };
+            trainingEpoch = 0;
+            document.getElementById('es-epoch').textContent = 0;
+            document.getElementById('es-patience-counter').textContent = 0;
+            document.getElementById('best-epoch').textContent = '-';
+            document.getElementById('best-val-loss').textContent = '-';
+            document.getElementById('stopped-epoch').textContent = '-';
+            document.getElementById('time-saved').textContent = '-';
+            drawEarlyStoppingCanvas();
+        }
+
+        function drawEarlyStoppingCanvas() {
+            const canvas = document.getElementById('early-stopping-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (trainingData.train.length === 0) return;
+            
+            const padding = 50;
+            const width = canvas.width - 2 * padding;
+            const height = canvas.height - 2 * padding;
+            
+            // Eksenler
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            // Loss eğrileri
+            const maxEpoch = Math.max(trainingData.train.length, trainingData.val.length);
+            
+            // Training loss
+            ctx.strokeStyle = '#2196F3';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            trainingData.train.forEach((loss, i) => {
+                const x = padding + (i / maxEpoch) * width;
+                const y = canvas.height - padding - (loss / 1.5) * height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Validation loss
+            ctx.strokeStyle = '#FF5722';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            trainingData.val.forEach((loss, i) => {
+                const x = padding + (i / maxEpoch) * width;
+                const y = canvas.height - padding - (loss / 1.5) * height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Best model marker
+            if (bestEpoch > 0) {
+                const x = padding + (bestEpoch / maxEpoch) * width;
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, canvas.height - padding);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        // DEMO 7: Rastgele Orman
+        function updateRandomForest() {
+            const nTrees = parseInt(document.getElementById('n-trees-slider').value);
+            const maxDepth = parseInt(document.getElementById('max-depth-slider').value);
+            
+            document.getElementById('n-trees-value').textContent = nTrees;
+            document.getElementById('max-depth-value').textContent = maxDepth;
+            
+            drawRandomForest(nTrees, maxDepth);
+            
+            // Metrikler
+            const baseAccuracy = 0.75;
+            const treeBonus = Math.min(nTrees * 0.02, 0.15);
+            const depthBonus = Math.min(maxDepth * 0.01, 0.07);
+            const accuracy = Math.min(baseAccuracy + treeBonus + depthBonus, 0.98);
+            
+            document.getElementById('rf-accuracy').textContent = accuracy.toFixed(2);
+            document.getElementById('rf-oob').textContent = (accuracy - 0.03).toFixed(2);
+        }
+
+        function drawRandomForest(nTrees, maxDepth) {
+            const canvas = document.getElementById('random-forest-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const treeWidth = Math.min(100, (canvas.width - 100) / nTrees);
+            const startX = (canvas.width - nTrees * treeWidth) / 2;
+            
+            for (let i = 0; i < nTrees; i++) {
+                const x = startX + i * treeWidth + treeWidth / 2;
+                drawTree(ctx, x, canvas.height / 2, maxDepth, 0);
+            }
+            
+            // Final prediction
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('→ Final Tahmin (Voting) →', canvas.width / 2, canvas.height - 30);
+        }
+
+        function drawTree(ctx, x, y, maxDepth, currentDepth) {
+            if (currentDepth >= maxDepth) return;
+            
+            const branchLength = 30 * (maxDepth - currentDepth);
+            const branchAngle = Math.PI / 6;
+            
+            // Ana dal
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y - branchLength);
+            ctx.stroke();
+            
+            // Sol dal
+            const leftX = x - branchLength * Math.sin(branchAngle);
+            const leftY = y - branchLength - branchLength * Math.cos(branchAngle);
+            ctx.beginPath();
+            ctx.moveTo(x, y - branchLength);
+            ctx.lineTo(leftX, leftY);
+            ctx.stroke();
+            
+            // Sağ dal
+            const rightX = x + branchLength * Math.sin(branchAngle);
+            const rightY = y - branchLength - branchLength * Math.cos(branchAngle);
+            ctx.beginPath();
+            ctx.moveTo(x, y - branchLength);
+            ctx.lineTo(rightX, rightY);
+            ctx.stroke();
+            
+            // Yaprak
+            if (currentDepth === maxDepth - 1) {
+                ctx.fillStyle = '#4CAF50';
+                ctx.beginPath();
+                ctx.arc(leftX, leftY, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(rightX, rightY, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Rekürsif dallar
+            drawTree(ctx, leftX, leftY, maxDepth, currentDepth + 1);
+            drawTree(ctx, rightX, rightY, maxDepth, currentDepth + 1);
+        }
+
+        // İlk yükleme
+        window.addEventListener('load', () => {
+            initCurrentDemo();
+        });
+
+        window.addEventListener('resize', () => {
+            initCurrentDemo();
+        });
+    </script>
+</body>
+</html>
