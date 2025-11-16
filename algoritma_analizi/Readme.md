@@ -11,7 +11,7 @@
 ## 💻 Kullanım
 
 ### Online Demo
-Hiçbir kurulum gerektirmez! Doğrudan şu linkten erişin:
+Hiçbir kurulum gerektirmez! Doğrudan şu linkten erişebilirsiniz:
 
 👉 [Sıralama ve Arama Algoritmaları ](https://bukettoptas.github.io/Dersler/algoritma_analizi/animasyonlar/sortingandsearch.html)
 👉 [En Yakın Nokta Çifti](https://bukettoptas.github.io/Dersler/algoritma_analizi/animasyonlar/closest_pair_animation.html)
