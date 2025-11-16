@@ -1,6 +1,6 @@
 # 🎯 K-En Yakın Komşu (KNN)
 
-[Ana Sayfaya Dön](../README.md)
+[Ana Sayfaya Dön](../Readme.md)
 
 ## 🤔 Temel Mantık
 
@@ -26,7 +26,3 @@ KNN, Öklid gibi mesafe metriklerine dayanır. Eğer özellikler farklı ölçek
 ### 2. Yüksek Boyut Laneti (Curse of Dimensionality)
 
 Özellik boyutu ($d$) arttıkça, noktalar arasındaki mesafeler anlamsızlaşmaya başlar. Yüksek boyutlu bir uzayda, tüm noktalar birbirinden "neredeyse eşit" uzaklıkta görünür. Bu durum, "en yakın" komşu kavramını işlevsiz hale getirir.
-
-## 📊 Simülasyonlar
-
-Algoritmanın `k` değerine ve ölçeklendirmeye karşı hassasiyetini görmek için [`notebooks/1_knn_simulations.ipynb`](../notebooks/1_knn_simulations.ipynb) defterini inceleyin.
