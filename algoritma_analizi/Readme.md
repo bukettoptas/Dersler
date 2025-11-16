@@ -1,6 +1,6 @@
 # 🎓 Algoritma Görselleştirme
 
-> **Algoritma Analizi Dersi için Arama ve Sıralama Algoritmaları**
+> **Algoritma Analizi Dersi için Algoritmaların Animasyonları**
 > 
 > *Hazırlayan: Dr. Buket Toptaş*  
 > *Tarih: 2025*
