@@ -5,8 +5,12 @@
 > *Hazırlayan: Dr. Buket Toptaş*  
 > *Tarih: 2025*
 
----
-👉 [Model Doğrulama ](https://bukettoptas.github.io/Dersler/makine_ogrenmesi/validation/validation.html)
+### Online Demo
+Hiçbir kurulum gerektirmez! Doğrudan şu linkten erişin:
+
+👉 [Model Doğrulama]
+(https://bukettoptas.github.io/Dersler/makine_ogrenmesi/validation/validation.html)
+
 ## 🎯 Giriş
 #### **Model Doğrulama** - Modelin Başarısını Nasıl Ölçeriz?
 Bir makine öğrenmesi modelinin ne kadar iyi çalıştığını anlamak için çeşitli metrikler kullanılır. **Confusion Matrix** (Karmaşıklık Matrisi), modelin doğru ve yanlış tahminlerini görselleştirir:
