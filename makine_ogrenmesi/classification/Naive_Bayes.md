@@ -1,6 +1,6 @@
 # 🎲 Naive Bayes
 
-[Ana Sayfaya Dön](../README.md)
+[Ana Sayfaya Dön](../Readme.md)
 
 ## 🤔 Temel Mantık
 
