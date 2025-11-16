@@ -1,1 +1,134 @@
+# 🎓 Makine Öğrenmesi Model Doğrulama
 
+> **Makine Öğrenmesinde Model Doğrulama Teknikleri**
+> 
+> *Hazırlayan: Dr. Buket Toptaş*  
+> *Tarih: 2025*
+
+---
+👉 [Model Doğrulama ](https://bukettoptas.github.io/Dersler/makine_ogrenmesi/validation/validation.html)
+## 🎯 Giriş
+#### **Model Doğrulama** - Modelin Başarısını Nasıl Ölçeriz?
+Bir makine öğrenmesi modelinin ne kadar iyi çalıştığını anlamak için çeşitli metrikler kullanılır. **Confusion Matrix** (Karmaşıklık Matrisi), modelin doğru ve yanlış tahminlerini görselleştirir:
+- **True Positives (TP)**: Doğru pozitif tahminler
+- **False Positives (FP)**: Yanlış pozitif tahminler (Tip I Hata)
+- **False Negatives (FN)**: Yanlış negatif tahminler (Tip II Hata)
+- **True Negatives (TN)**: Doğru negatif tahminler
+
+
+#### **Eğitim-Test Ayrımı** - Veriyi Doğru Bölmek Neden Önemli?
+Makine öğrenmesinde "data leakage" (veri sızması) en yaygın hatalardan biridir. Veri seti üç parçaya ayrılmalıdır:
+- **Eğitim Seti (%60-80)**: Modelin parametrelerini öğrenmesi için
+- **Doğrulama Seti (%10-20)**: Hiperparametre optimizasyonu ve model seçimi için
+- **Test Seti (%10-20)**: Final performans değerlendirmesi için
+
+
+#### **Çapraz Doğrulama (K-Fold)** - Daha Güvenilir Performans Tahmini
+Küçük veri setlerinde tek bir train-test split'i yanıltıcı olabilir. **K-Fold Cross-Validation**, veriyi K parçaya böler ve her parçayı sırayla test seti olarak kullanır. Bu sayede:
+- Tüm veri hem eğitim hem test için kullanılır
+- Performans tahmini daha kararlı olur
+- Model varyansı azalır
+
+
+#### **Regülarizasyon** - Overfitting'i Nasıl Önleriz?
+Model çok karmaşık olduğunda eğitim verisini "ezberlemeye" başlar (overfitting). Regülarizasyon, model ağırlıklarına ceza ekleyerek bunu önler:
+
+**L1 Regülarizasyon (Lasso)**: `Cost = MSE + λ × Σ|wi|`
+- Bazı ağırlıkları tam sıfıra iter
+- Otomatik özellik seçimi yapar
+- Seyrek (sparse) modeller oluşturur
+
+**L2 Regülarizasyon (Ridge)**: `Cost = MSE + λ × Σ(wi²)`
+- Tüm ağırlıkları küçültür ama sıfırlamaz
+- Korelasyonlu özelliklerle iyi başa çıkar
+- Daha stabil modeldir
+
+
+#### **Gradyan İniş** - Optimizasyon Nasıl Çalışır?
+Gradyan iniş, maliyet fonksiyonunu minimize etmek için kullanılan temel optimizasyon algoritmasıdır:
+
+**Formül**: `θ(t+1) = θ(t) - α × ∇J(θ(t))`
+
+**Learning Rate (α)** en kritik hiperparametredir:
+- **Çok küçük**: Yavaş yakınsama, uzun eğitim süresi
+- **Çok büyük**: Divergence (sapma), minimum'a ulaşamama
+- **Optimal**: Hızlı ve stabil yakınsama
+
+
+#### **Erken Durdurma (Early Stopping)** - Eğitimi Ne Zaman Durduralım?
+Model eğitilirken validation loss bir noktadan sonra artmaya başlar - bu overfitting'in işaretidir. Early stopping, bu noktayı tespit eder ve eğitimi otomatik durdurur:
+
+**Mantık**:
+- Her epoch'ta validation loss kontrol edilir
+- Gelişme olmazsa "patience counter" artırılır
+- Counter >= patience olduğunda eğitim durur
+- En iyi modelin ağırlıkları geri yüklenir
+
+
+#### **Rastgele Orman (Random Forest)** - Topluluk Gücü
+Random Forest, birden fazla karar ağacını birleştirerek güçlü tahminler yapar. Üç temel prensip üzerine kuruludur:
+
+**1. Bagging (Bootstrap Aggregating)**
+- Her ağaç, veri setinden yerine koyarak (with replacement) rastgele örnekler görür
+- Tipik olarak verinin ~63%'ü her ağaç için kullanılır
+
+**2. Feature Randomness**
+- Her düğümde tüm özellikler yerine rastgele bir alt küme kullanılır
+- Sınıflandırma: √p özellik
+- Regresyon: p/3 özellik
+
+**3. Voting/Averaging**
+- Sınıflandırma: Çoğunluk oyu (majority voting)
+- Regresyon: Ortalama (averaging)
+
+
+## 💻 Kullanım
+
+### Online Demo
+Hiçbir kurulum gerektirmez! Doğrudan şu linkten erişin:
+
+👉 **[Demo'yu Aç](https://bukettoptas.github.io/Dersler/makine_ogrenmesi/validation/validation.html)** 
+
+## 🤝 Katkıda Bulunma
+
+Katkılarınızı bekliyoruz! 
+
+### Nasıl Katkıda Bulunabilirsiniz?
+
+1. **Fork** yapın
+2. Feature branch oluşturun (`git checkout -b yeni-ozellik`)
+3. Değişikliklerinizi commit edin (`git commit -am 'Yeni özellik eklendi'`)
+4. Branch'inizi push edin (`git push origin yeni-ozellik`)
+5. **Pull Request** oluşturun
+
+---
+
+## 🐛 Sorun Bildirme
+
+Bir hata buldunuz mu? [Issue açın](https://github.com/bukettoptas/Dersler/makine_ogrenmesi/issues)
+
+---
+
+## 👨‍💻 Geliştirici
+
+**[Adınız]**
+- GitHub: [@bukettoptas](https://github.com/bukettoptas)
+- LinkedIn: [buket-toptaş-142b6677](https://www.linkedin.com/in/buket-topta%C5%9F-142b6677/)
+- Email: buketecrinozturk@gmail.com
+
+---
+
+## 🙏 Teşekkürler
+
+- Makine öğrenmesi topluluğuna
+- Açık kaynak katkıcılara
+- Geri bildirim sağlayan herkese
+
+---
+<div align="center">
+
+### ⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın! ⭐
+
+**Made with ❤️ for ML learners**
+
+</div>
