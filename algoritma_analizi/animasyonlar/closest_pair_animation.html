@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>En Yakın Nokta Çifti Animasyonu</title>
+    <title>En Yakın Nokta Çifti - Böl ve Yönet Görselleştirmesi</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -32,8 +32,13 @@
         }
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr 400px;
             gap: 20px;
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         .canvas-container {
             background: #f8f9fa;
@@ -46,6 +51,111 @@
             background: white;
             display: block;
         }
+        .array-visualization {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 200px;
+        }
+        .array-visualization h3 {
+            margin-top: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .array-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .array-level {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .array-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .array-boxes {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+        .array-box {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        .array-box.left-partition {
+            background: #74b9ff;
+            border-color: #0984e3;
+            color: white;
+        }
+        .array-box.right-partition {
+            background: #a29bfe;
+            border-color: #6c5ce7;
+            color: white;
+        }
+        .array-box.strip-zone {
+            background: #ffeaa7;
+            border-color: #fdcb6e;
+            color: #333;
+        }
+        .array-box.closest-pair {
+            background: #ff7675;
+            border-color: #d63031;
+            color: white;
+            animation: pulse 0.5s ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .divider-line {
+            width: 2px;
+            height: 35px;
+            background: #e74c3c;
+            margin: 0 5px;
+        }
+        .recursion-tree {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #f5576c;
+        }
+        .tree-node {
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+        .tree-node.active {
+            background: #ffeaa7;
+            border-left: 3px solid #fdcb6e;
+        }
+        .tree-node.completed {
+            background: #d5f4e6;
+            border-left: 3px solid #00b894;
+        }
+        .tree-indent-1 { margin-left: 20px; }
+        .tree-indent-2 { margin-left: 40px; }
+        .tree-indent-3 { margin-left: 60px; }
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -140,13 +250,14 @@
             color: #333;
         }
         .step-info {
-            font-size: 16px;
+            font-size: 15px;
             color: #333;
             margin-bottom: 15px;
             padding: 15px;
             background: white;
             border-radius: 8px;
             border-left: 4px solid #f5576c;
+            line-height: 1.6;
         }
         .stats {
             background: white;
@@ -188,45 +299,64 @@
             border-radius: 50%;
             margin-right: 10px;
         }
-        .complexity-box {
+        .strategy-box {
             background: white;
             padding: 15px;
             border-radius: 8px;
             margin-top: 10px;
+            border-left: 4px solid #00b894;
         }
-        .complexity-box h4 {
+        .strategy-box h4 {
             margin-top: 0;
-            color: #f5576c;
+            color: #00b894;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+        .strategy-steps {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
         }
-        .comparison-table th,
-        .comparison-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+        .strategy-steps li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
         }
-        .comparison-table th {
-            background: #f8f9fa;
+        .strategy-steps li:last-child {
+            border-bottom: none;
+        }
+        .strategy-steps li::before {
+            content: "→";
+            color: #00b894;
             font-weight: bold;
-        }
-        .highlight {
-            color: #27ae60;
-            font-weight: bold;
+            margin-right: 8px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎯 En Yakın Nokta Çifti</h1>
-        <p class="subtitle">Divide & Conquer Algoritması ile O(n log n) Çözüm</p>
+        <h1>🎯 En Yakın Nokta Çifti - Böl ve Yönet</h1>
+        <p class="subtitle">Divide & Conquer Stratejisinin Görsel Analizi</p>
         
         <div class="main-content">
-            <div class="canvas-container">
-                <canvas id="canvas" width="800" height="600"></canvas>
+            <div class="left-panel">
+                <div class="canvas-container">
+                    <canvas id="canvas" width="900" height="500"></canvas>
+                </div>
+                
+                <div class="array-visualization">
+                    <h3>
+                        <span>📊 Dizi Görünümü - Böl ve Yönet</span>
+                    </h3>
+                    <div class="array-container" id="arrayContainer">
+                        <!-- JavaScript ile doldurulacak -->
+                    </div>
+                    <div class="recursion-tree" id="recursionTree">
+                        <strong>Recursive Çağrı Ağacı:</strong>
+                        <div id="treeContent"></div>
+                    </div>
+                </div>
             </div>
             
             <div class="sidebar">
@@ -235,8 +365,8 @@
                     
                     <div class="speed-control">
                         <label for="speedSlider">⚡ Hız:</label>
-                        <input type="range" id="speedSlider" class="speed-slider" min="1" max="5" value="3" step="1">
-                        <span class="speed-value" id="speedValue">3x</span>
+                        <input type="range" id="speedSlider" class="speed-slider" min="1" max="5" value="2" step="1">
+                        <span class="speed-value" id="speedValue">2x</span>
                     </div>
                     
                     <button id="startBtn">▶️ Başlat</button>
@@ -244,6 +374,17 @@
                     <button id="resetBtn">🔄 Sıfırla</button>
                     <button id="stepBtn">⏭️ Sonraki Adım</button>
                     <button id="newPointsBtn">🎲 Yeni Noktalar</button>
+                </div>
+                
+                <div class="strategy-box">
+                    <h4>💡 Böl ve Yönet Stratejisi</h4>
+                    <ul class="strategy-steps">
+                        <li><strong>1. Sırala:</strong> Noktaları x'e göre sırala</li>
+                        <li><strong>2. Böl:</strong> Ortadan ikiye böl</li>
+                        <li><strong>3. Çöz:</strong> Her yarıda recursive çağrı</li>
+                        <li><strong>4. Birleştir:</strong> Şerit bölgesini kontrol et</li>
+                        <li><strong>5. Döndür:</strong> Minimum mesafeyi bul</li>
+                    </ul>
                 </div>
                 
                 <div class="info-panel">
@@ -258,6 +399,10 @@
                         <div class="stat-item">
                             <span class="stat-label">En Yakın Mesafe:</span>
                             <span class="stat-value" id="minDistance">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Recursive Seviye:</span>
+                            <span class="stat-value" id="recursionLevel">0</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Adım:</span>
@@ -275,35 +420,18 @@
                             <span>En Yakın Çift</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #9b59b6;"></div>
-                            <span>Aktif Bölge</span>
+                            <div class="legend-color" style="background: #74b9ff;"></div>
+                            <span>Sol Bölüm</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #95a5a6; opacity: 0.3;"></div>
-                            <span>Bölme Çizgisi</span>
+                            <div class="legend-color" style="background: #a29bfe;"></div>
+                            <span>Sağ Bölüm</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ffeaa7;"></div>
+                            <span>Şerit Bölgesi</span>
                         </div>
                     </div>
-                </div>
-                
-                <div class="complexity-box">
-                    <h4>⚡ Karmaşıklık Analizi</h4>
-                    <table class="comparison-table">
-                        <tr>
-                            <th>Yöntem</th>
-                            <th>Zaman</th>
-                        </tr>
-                        <tr>
-                            <td>Brute Force</td>
-                            <td>O(n²)</td>
-                        </tr>
-                        <tr>
-                            <td>D&C</td>
-                            <td class="highlight">O(n log n)</td>
-                        </tr>
-                    </table>
-                    <p style="margin-top: 10px; font-size: 13px; color: #666;">
-                        16 nokta için: 120 vs 64 karşılaştırma!
-                    </p>
                 </div>
             </div>
         </div>
@@ -321,8 +449,11 @@
         const pointCount = document.getElementById('pointCount');
         const minDistance = document.getElementById('minDistance');
         const stepCount = document.getElementById('stepCount');
+        const recursionLevel = document.getElementById('recursionLevel');
         const speedSlider = document.getElementById('speedSlider');
         const speedValue = document.getElementById('speedValue');
+        const arrayContainer = document.getElementById('arrayContainer');
+        const treeContent = document.getElementById('treeContent');
 
         let points = [];
         let currentStep = 0;
@@ -333,21 +464,24 @@
         let minDist = Infinity;
         let divisionLine = null;
         let activeRegion = null;
-        let animationSpeed = 3; // Varsayılan hız
+        let leftPartition = [];
+        let rightPartition = [];
+        let stripPoints = [];
+        let currentRecursionLevel = 0;
+        let recursionStack = [];
+        let animationSpeed = 2;
 
         const MARGIN = 50;
         const POINT_RADIUS = 6;
 
-        // Hız değerlerini milisaniye cinsinden tanımla
         const speedSettings = {
-            1: 3000,  // Çok yavaş
-            2: 2000,  // Yavaş
-            3: 1500,  // Normal
-            4: 800,   // Hızlı
-            5: 400    // Çok hızlı
+            1: 3000,
+            2: 2000,
+            3: 1500,
+            4: 800,
+            5: 400
         };
 
-        // Hız slider'ı event listener
         speedSlider.addEventListener('input', (e) => {
             animationSpeed = parseInt(e.target.value);
             speedValue.textContent = animationSpeed + 'x';
@@ -358,10 +492,13 @@
             for (let i = 0; i < count; i++) {
                 points.push({
                     x: MARGIN + Math.random() * (canvas.width - 2 * MARGIN),
-                    y: MARGIN + Math.random() * (canvas.height - 2 * MARGIN)
+                    y: MARGIN + Math.random() * (canvas.height - 2 * MARGIN),
+                    id: i
                 });
             }
             points.sort((a, b) => a.x - b.x);
+            // ID'leri yeniden ata
+            points.forEach((p, i) => p.id = i);
         }
 
         function distance(p1, p2) {
@@ -376,6 +513,13 @@
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 2;
             ctx.stroke();
+            
+            // ID numarasını göster
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(point.id, point.x, point.y - radius - 8);
         }
 
         function drawLine(p1, p2, color = '#e74c3c', width = 2, dash = []) {
@@ -389,7 +533,7 @@
             ctx.setLineDash([]);
         }
 
-        function drawVerticalLine(x, color = '#95a5a6', alpha = 0.3) {
+        function drawVerticalLine(x, color = '#e74c3c', alpha = 0.5) {
             ctx.save();
             ctx.globalAlpha = alpha;
             ctx.beginPath();
@@ -400,14 +544,28 @@
             ctx.setLineDash([10, 5]);
             ctx.stroke();
             ctx.setLineDash([]);
+            
+            // "Bölme Çizgisi" etiketi
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('BÖLEN ÇİZGİ', x, 20);
             ctx.restore();
         }
 
-        function drawRegion(x, width, color = '#9b59b6', alpha = 0.1) {
+        function drawRegion(x, width, color = '#9b59b6', alpha = 0.15) {
             ctx.save();
             ctx.globalAlpha = alpha;
             ctx.fillStyle = color;
             ctx.fillRect(x - width / 2, 0, width, canvas.height);
+            
+            // Şerit etiketleri
+            ctx.globalAlpha = 0.8;
+            ctx.fillStyle = '#e67e22';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('ŞERİT BÖLGE', x, canvas.height - 10);
             ctx.restore();
         }
 
@@ -426,24 +584,163 @@
             
             // En yakın çift varsa çizgiyi çiz
             if (closestPair) {
-                drawLine(closestPair[0], closestPair[1], '#e74c3c', 3);
+                drawLine(closestPair[0], closestPair[1], '#e74c3c', 4);
                 
-                // Mesafe yazısı
                 const midX = (closestPair[0].x + closestPair[1].x) / 2;
                 const midY = (closestPair[0].y + closestPair[1].y) / 2;
+                ctx.fillStyle = 'white';
+                ctx.fillRect(midX - 35, midY - 12, 70, 24);
                 ctx.fillStyle = '#e74c3c';
                 ctx.font = 'bold 14px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText(`d = ${minDist.toFixed(2)}`, midX, midY - 10);
+                ctx.fillText(`d = ${minDist.toFixed(1)}`, midX, midY + 5);
             }
             
             // Noktaları çiz
             points.forEach(point => {
-                const isClosest = closestPair && 
-                    (point === closestPair[0] || point === closestPair[1]);
-                drawPoint(point, isClosest ? '#e74c3c' : '#3498db', 
-                         isClosest ? POINT_RADIUS + 2 : POINT_RADIUS);
+                let color = '#3498db';
+                let radius = POINT_RADIUS;
+                
+                if (closestPair && (point === closestPair[0] || point === closestPair[1])) {
+                    color = '#e74c3c';
+                    radius = POINT_RADIUS + 2;
+                } else if (leftPartition.includes(point)) {
+                    color = '#74b9ff';
+                } else if (rightPartition.includes(point)) {
+                    color = '#a29bfe';
+                } else if (stripPoints.includes(point)) {
+                    color = '#ffeaa7';
+                }
+                
+                drawPoint(point, color, radius);
             });
+        }
+
+        function updateArrayVisualization() {
+            arrayContainer.innerHTML = '';
+            
+            // Ana dizi gösterimi
+            const mainArray = document.createElement('div');
+            mainArray.className = 'array-level';
+            mainArray.innerHTML = '<div class="array-label">Tüm Noktalar (x\'e göre sıralı)</div>';
+            
+            const mainBoxes = document.createElement('div');
+            mainBoxes.className = 'array-boxes';
+            
+            points.forEach((point, idx) => {
+                const box = document.createElement('div');
+                box.className = 'array-box';
+                
+                if (closestPair && (point === closestPair[0] || point === closestPair[1])) {
+                    box.classList.add('closest-pair');
+                } else if (leftPartition.includes(point)) {
+                    box.classList.add('left-partition');
+                } else if (rightPartition.includes(point)) {
+                    box.classList.add('right-partition');
+                } else if (stripPoints.includes(point)) {
+                    box.classList.add('strip-zone');
+                }
+                
+                box.textContent = point.id;
+                box.title = `P${point.id}: (${point.x.toFixed(0)}, ${point.y.toFixed(0)})`;
+                mainBoxes.appendChild(box);
+                
+                // Bölme çizgisi göster
+                if (divisionLine && idx < points.length - 1) {
+                    const midX = (points[idx].x + points[idx + 1].x) / 2;
+                    if (Math.abs(midX - divisionLine) < 5) {
+                        const divider = document.createElement('div');
+                        divider.className = 'divider-line';
+                        mainBoxes.appendChild(divider);
+                    }
+                }
+            });
+            
+            mainArray.appendChild(mainBoxes);
+            arrayContainer.appendChild(mainArray);
+            
+            // Sol ve sağ bölümleri göster
+            if (leftPartition.length > 0 || rightPartition.length > 0) {
+                const partitionsDiv = document.createElement('div');
+                partitionsDiv.style.display = 'grid';
+                partitionsDiv.style.gridTemplateColumns = '1fr 1fr';
+                partitionsDiv.style.gap = '10px';
+                partitionsDiv.style.marginTop = '15px';
+                
+                if (leftPartition.length > 0) {
+                    const leftDiv = document.createElement('div');
+                    leftDiv.className = 'array-level';
+                    leftDiv.innerHTML = '<div class="array-label">← Sol Yarı</div>';
+                    const leftBoxes = document.createElement('div');
+                    leftBoxes.className = 'array-boxes';
+                    leftPartition.forEach(point => {
+                        const box = document.createElement('div');
+                        box.className = 'array-box left-partition';
+                        box.textContent = point.id;
+                        leftBoxes.appendChild(box);
+                    });
+                    leftDiv.appendChild(leftBoxes);
+                    partitionsDiv.appendChild(leftDiv);
+                }
+                
+                if (rightPartition.length > 0) {
+                    const rightDiv = document.createElement('div');
+                    rightDiv.className = 'array-level';
+                    rightDiv.innerHTML = '<div class="array-label">Sağ Yarı →</div>';
+                    const rightBoxes = document.createElement('div');
+                    rightBoxes.className = 'array-boxes';
+                    rightPartition.forEach(point => {
+                        const box = document.createElement('div');
+                        box.className = 'array-box right-partition';
+                        box.textContent = point.id;
+                        rightBoxes.appendChild(box);
+                    });
+                    rightDiv.appendChild(rightBoxes);
+                    partitionsDiv.appendChild(rightDiv);
+                }
+                
+                arrayContainer.appendChild(partitionsDiv);
+            }
+            
+            // Şerit noktalarını göster
+            if (stripPoints.length > 0) {
+                const stripDiv = document.createElement('div');
+                stripDiv.className = 'array-level';
+                stripDiv.style.marginTop = '15px';
+                stripDiv.innerHTML = '<div class="array-label">⚡ Şerit Bölgesi (Kritik!)</div>';
+                const stripBoxes = document.createElement('div');
+                stripBoxes.className = 'array-boxes';
+                stripPoints.forEach(point => {
+                    const box = document.createElement('div');
+                    box.className = 'array-box strip-zone';
+                    box.textContent = point.id;
+                    stripBoxes.appendChild(box);
+                });
+                stripDiv.appendChild(stripBoxes);
+                arrayContainer.appendChild(stripDiv);
+            }
+        }
+
+        function updateRecursionTree() {
+            treeContent.innerHTML = '';
+            recursionStack.forEach(node => {
+                const div = document.createElement('div');
+                div.className = `tree-node tree-indent-${node.level} ${node.status}`;
+                div.textContent = node.text;
+                treeContent.appendChild(div);
+            });
+        }
+
+        function addToRecursionTree(text, level, status = 'active') {
+            recursionStack.push({ text, level, status });
+            updateRecursionTree();
+        }
+
+        function updateRecursionTreeStatus(index, status) {
+            if (recursionStack[index]) {
+                recursionStack[index].status = status;
+                updateRecursionTree();
+            }
         }
 
         function bruteForce(pts) {
@@ -467,7 +764,6 @@
             let minD = d;
             let pair = null;
             
-            // Y koordinatına göre sırala
             strip.sort((a, b) => a.y - b.y);
             
             for (let i = 0; i < strip.length; i++) {
@@ -483,16 +779,25 @@
             return { distance: minD, pair: pair };
         }
 
-        async function* closestPairDC(pts, left = 0, right = pts.length - 1) {
+        async function* closestPairDC(pts, left = 0, right = pts.length - 1, level = 0) {
             const n = right - left + 1;
+            const treeIndex = recursionStack.length;
+            currentRecursionLevel = Math.max(currentRecursionLevel, level);
+            recursionLevel.textContent = level;
+            
+            addToRecursionTree(`Çağrı(${n} nokta): [${left}..${right}]`, level, 'active');
             
             if (n <= 3) {
-                // Base case: brute force
                 const subset = pts.slice(left, right + 1);
+                leftPartition = [];
+                rightPartition = [];
+                stripPoints = subset;
                 const result = bruteForce(subset);
                 
+                updateRecursionTreeStatus(treeIndex, 'completed');
+                
                 yield {
-                    message: `Küçük grup (${n} nokta) - Brute Force`,
+                    message: `🔍 Base Case: ${n} nokta - Brute Force uygula`,
                     pair: result.pair,
                     distance: result.distance
                 };
@@ -500,42 +805,49 @@
                 return result;
             }
             
-            // Ortayı bul
             const mid = Math.floor((left + right) / 2);
             const midPoint = pts[mid];
             
+            leftPartition = pts.slice(left, mid + 1);
+            rightPartition = pts.slice(mid + 1, right + 1);
+            stripPoints = [];
+            
             yield {
-                message: `Noktaları böl: ${n} nokta → ${mid - left + 1} + ${right - mid}`,
+                message: `📊 BÖL: ${n} nokta → Sol(${mid - left + 1}) + Sağ(${right - mid})`,
                 divisionLine: midPoint.x
             };
             
-            // Sol yarıyı çöz
-            const leftGen = closestPairDC(pts, left, mid);
+            // Sol
+            addToRecursionTree(`→ Sol yarıyı çöz...`, level + 1, 'active');
+            const leftGen = closestPairDC(pts, left, mid, level + 1);
             let leftResult;
             for await (const step of leftGen) {
                 yield step;
                 leftResult = step;
             }
             
-            // Sağ yarıyı çöz
-            const rightGen = closestPairDC(pts, mid + 1, right);
+            // Sağ
+            addToRecursionTree(`→ Sağ yarıyı çöz...`, level + 1, 'active');
+            const rightGen = closestPairDC(pts, mid + 1, right, level + 1);
             let rightResult;
             for await (const step of rightGen) {
                 yield step;
                 rightResult = step;
             }
             
-            // Minimum mesafeyi bul
             let d = Math.min(leftResult.distance, rightResult.distance);
             let currentPair = d === leftResult.distance ? leftResult.pair : rightResult.pair;
             
+            leftPartition = pts.slice(left, mid + 1);
+            rightPartition = pts.slice(mid + 1, right + 1);
+            
             yield {
-                message: `Her iki yarıdaki minimum: ${d.toFixed(2)}`,
+                message: `🔄 BİRLEŞTİR: min(sol, sağ) = ${d.toFixed(2)}`,
                 pair: currentPair,
                 distance: d
             };
             
-            // Şeritteki noktaları kontrol et
+            // Şerit
             const strip = [];
             for (let i = left; i <= right; i++) {
                 if (Math.abs(pts[i].x - midPoint.x) < d) {
@@ -543,8 +855,10 @@
                 }
             }
             
+            stripPoints = strip;
+            
             yield {
-                message: `Ortadaki şerit: ${strip.length} nokta (±${d.toFixed(2)} aralığında)`,
+                message: `⚡ ŞERİT: ${strip.length} nokta kontrol ediliyor (±${d.toFixed(1)} aralığı)`,
                 activeRegion: { x: midPoint.x, width: 2 * d },
                 pair: currentPair,
                 distance: d
@@ -554,8 +868,9 @@
                 const stripResult = stripClosest(strip, d);
                 
                 if (stripResult.pair && stripResult.distance < d) {
+                    updateRecursionTreeStatus(treeIndex, 'completed');
                     yield {
-                        message: `Şeritte daha yakın çift bulundu: ${stripResult.distance.toFixed(2)}`,
+                        message: `✅ Şeritte daha yakın bulundu: ${stripResult.distance.toFixed(2)}`,
                         pair: stripResult.pair,
                         distance: stripResult.distance
                     };
@@ -564,10 +879,12 @@
                 }
             }
             
+            updateRecursionTreeStatus(treeIndex, 'completed');
             return { distance: d, pair: currentPair };
         }
 
         async function animate() {
+            recursionStack = [];
             const generator = closestPairDC(points);
             
             for await (const step of generator) {
@@ -592,7 +909,7 @@
                 
                 if (step.divisionLine !== undefined) {
                     divisionLine = step.divisionLine;
-                } else {
+                } else if (!step.activeRegion) {
                     divisionLine = null;
                 }
                 
@@ -606,17 +923,18 @@
                 stepCount.textContent = currentStep;
                 
                 drawScene();
+                updateArrayVisualization();
                 
                 if (stepMode) {
                     stepMode = false;
                     break;
                 }
                 
-                await new Promise(resolve => setTimeout(resolve, speedSettings[animationSpeed])); // Hız ayarına göre
+                await new Promise(resolve => setTimeout(resolve, speedSettings[animationSpeed]));
             }
             
             if (!stepMode) {
-                stepInfo.textContent = '✅ Tamamlandı! En yakın çift bulundu.';
+                stepInfo.textContent = '✅ Tamamlandı! En yakın çift bulundu. Böl ve Yönet stratejisi ile O(n log n) karmaşıklıkta!';
                 startBtn.disabled = false;
                 pauseBtn.disabled = true;
                 stepBtn.disabled = false;
@@ -629,8 +947,13 @@
             minDist = Infinity;
             divisionLine = null;
             activeRegion = null;
+            leftPartition = [];
+            rightPartition = [];
+            stripPoints = [];
+            currentRecursionLevel = 0;
             minDistance.textContent = '-';
             stepCount.textContent = '0';
+            recursionLevel.textContent = '0';
             isPaused = false;
             stepMode = false;
             startBtn.disabled = true;
@@ -650,6 +973,11 @@
             minDist = Infinity;
             divisionLine = null;
             activeRegion = null;
+            leftPartition = [];
+            rightPartition = [];
+            stripPoints = [];
+            currentRecursionLevel = 0;
+            recursionStack = [];
             isPaused = false;
             stepMode = false;
             startBtn.disabled = false;
@@ -658,8 +986,11 @@
             pauseBtn.textContent = '⏸️ Duraklat';
             minDistance.textContent = '-';
             stepCount.textContent = '0';
+            recursionLevel.textContent = '0';
             stepInfo.textContent = 'Başlatmak için ▶️ butonuna basın';
             drawScene();
+            updateArrayVisualization();
+            treeContent.innerHTML = '';
         });
 
         stepBtn.addEventListener('click', () => {
@@ -668,8 +999,14 @@
                 minDist = Infinity;
                 divisionLine = null;
                 activeRegion = null;
+                leftPartition = [];
+                rightPartition = [];
+                stripPoints = [];
+                currentRecursionLevel = 0;
+                recursionStack = [];
                 minDistance.textContent = '-';
                 stepCount.textContent = '0';
+                recursionLevel.textContent = '0';
                 startBtn.disabled = true;
                 pauseBtn.disabled = true;
                 animate();
@@ -685,6 +1022,11 @@
             minDist = Infinity;
             divisionLine = null;
             activeRegion = null;
+            leftPartition = [];
+            rightPartition = [];
+            stripPoints = [];
+            currentRecursionLevel = 0;
+            recursionStack = [];
             isPaused = false;
             stepMode = false;
             startBtn.disabled = false;
@@ -693,13 +1035,17 @@
             pauseBtn.textContent = '⏸️ Duraklat';
             minDistance.textContent = '-';
             stepCount.textContent = '0';
-            stepInfo.textContent = 'Yeni noktalar oluşturuldu!';
+            recursionLevel.textContent = '0';
+            stepInfo.textContent = 'Yeni noktalar oluşturuldu! Noktalar x koordinatına göre sıralandı.';
             drawScene();
+            updateArrayVisualization();
+            treeContent.innerHTML = '';
         });
 
         // İlk noktaları oluştur ve çiz
         generatePoints(16);
         drawScene();
+        updateArrayVisualization();
     </script>
 </body>
 </html>
