@@ -31,11 +31,15 @@ Katkılarınızı bekliyoruz!
 
 ---
 
-## 🐛 Sorun Bildirme
+## 🐛 Sorun Bildirme 🎯 Geliştirme Önerileri
 
-Bir hata buldunuz mu? [Issue açın](https://github.com/bukettoptas/Dersler/algoritma_analizi/animasyonlar/issues)
+Bu projeyi geliştirmemize yardımcı olmak ister misiniz?  
+Karşılaştığınız hataları, eksiklikleri veya geliştirme önerilerinizi lütfen bir **issue** açarak bildirin.
 
----
+🔗 Issue sayfası: https://github.com/bukettoptas/Dersler/issues
+
+Issue açmadan önce mevcut sorunları aramayı unutmayın. Teşekkürler! 🙌
+
 
 ## 👨‍💻 Geliştirici
 
