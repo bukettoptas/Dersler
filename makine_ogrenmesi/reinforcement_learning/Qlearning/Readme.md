@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🤖 Q-Learning Treasure Hunt
 
 **Interactive Q-Learning Demo - Pekiştirmeli Öğrenme**
@@ -127,3 +128,6 @@ Bu demo şunları gösterir:
 **Hazırlayan:** Dr. Buket Toptaş  
 **Ders:** Makine Öğrenmesi - Reinforcement Learning  
 **Üniversite:** 4. Sınıf Yazılım Mühendisliği
+=======
+
+>>>>>>> db8a4b6ace06f88138c8f05407f4078e0582199e
