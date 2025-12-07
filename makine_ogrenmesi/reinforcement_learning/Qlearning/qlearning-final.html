@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Q-Learning Treasure Hunt</title>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+        
+        .game-grid {
+            display: inline-block;
+            background: #1e293b;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .grid-row {
+            display: flex;
+        }
+        
+        .cell {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s;
+            font-size: 2rem;
+        }
+        
+        .controls {
+            margin-top: 2rem;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+        
+        button:hover { transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        
+        .btn-start { background: #10b981; }
+        .btn-stop { background: #ef4444; }
+        .btn-reset { background: #6366f1; }
+        
+        .params {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .param-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+            color: white;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        
+        .bar {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+        
+        .legend {
+            background: #f8fafc;
+            padding: 1.5rem;
+            borderRadius: 16px;
+        }
+        
+        .legend-item {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .reward-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: white;
+            animation: pop 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Robot's Treasure Hunt</h1>
+        <p class="subtitle">Q-Learning ile Pekiştirmeli Öğrenme</p>
+        
+        <div class="main-grid">
+            <div>
+                <div class="game-grid" id="gameGrid"></div>
+                
+                <div class="controls">
+                    <div class="button-group">
+                        <button id="startBtn" class="btn-start">▶️ Başlat</button>
+                        <button id="resetBtn" class="btn-reset">🔄 Sıfırla</button>
+                    </div>
+                    
+                    <div class="params">
+                        <div class="param-group">
+                            <label>Learning Rate (α): <span id="alphaVal">0.50</span></label>
+                            <input type="range" id="alpha" min="0.1" max="0.9" step="0.1" value="0.5">
+                        </div>
+                        <div class="param-group">
+                            <label>Discount Factor (γ): <span id="gammaVal">0.90</span></label>
+                            <input type="range" id="gamma" min="0.1" max="0.99" step="0.01" value="0.9">
+                        </div>
+                        <div class="param-group">
+                            <label>Exploration Rate (ε): <span id="epsilonVal">0.30</span></label>
+                            <input type="range" id="epsilon" min="0" max="1" step="0.05" value="0.3">
+                        </div>
+                        <div class="param-group">
+                            <label>Hız: <span id="speedVal">1.0x</span></label>
+                            <input type="range" id="speed" min="100" max="2000" step="100" value="1000">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="stats">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="stat-label">🧠 Episode</div>
+                        <div class="stat-value" id="episodeCount">0</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <div class="stat-label">🏆 Toplam Ödül</div>
+                        <div class="stat-value" id="totalReward">0.0</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                        <div class="stat-label">⚡ Son Aksiyon</div>
+                        <div class="stat-value" style="font-size: 1.25rem;" id="lastAction">-</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+                        <div class="stat-label">📈 Ziyaret</div>
+                        <div class="stat-value" style="font-size: 1.25rem;" id="visited">0/32</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3 style="font-size: 1.125rem; font-weight: 600; color: #1e293b; margin-bottom: 1rem;">
+                        Ödül Geçmişi (Son 20 Episode)
+                    </h3>
+                    <div class="chart" id="chart"></div>
+                </div>
+                
+                <div class="legend">
+                    <h3 style="font-size: 1.125rem; font-weight: 600; color: #1e293b; margin-bottom: 1rem;">Açıklama</h3>
+                    <div class="legend-item">🤖 <strong>Robot</strong> - AI Ajanı</div>
+                    <div class="legend-item">💰 <strong>Hazine</strong> - Hedef (+10)</div>
+                    <div class="legend-item">💎 <strong>Ödül</strong> - Küçük ödül (+2)</div>
+                    <div class="legend-item">🔥 <strong>Tuzak</strong> - Ceza (-5)</div>
+                    <div class="legend-item">🧱 <strong>Engel</strong> - Geçilemez</div>
+                    <div class="legend-item">↑→↓← <strong>Oklar</strong> - En iyi Q-değeri</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Game State
+        const GRID_SIZE = 6;
+        const grid = [
+            [0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1],
+            [0, 3, 0, 0, 2, 0],
+            [0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 1, 0],
+            [0, 3, 0, 4, 0, 1]
+        ];
+        
+        const ACTIONS = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
+        const ARROWS = { 'UP': '↑', 'DOWN': '↓', 'LEFT': '←', 'RIGHT': '→' };
+        const EMOJIS = { 1: '🧱', 2: '💎', 3: '🔥', 4: '💰' };
+        const COLORS = { 0: '#f1f5f9', 1: '#64748b', 2: '#10b981', 3: '#ef4444', 4: '#f59e0b' };
+        
+        let robotPos = { x: 0, y: 0 };
+        let qTable = {};
+        let episode = 0;
+        let totalReward = 0;
+        let rewardHistory = [0];
+        let isRunning = false;
+        let intervalId = null;
+        let visitedStates = new Set();
+        
+        // Initialize Q-Table
+        function initQTable() {
+            qTable = {};
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (grid[y][x] !== 1) {
+                        const key = `${x},${y}`;
+                        qTable[key] = {};
+                        ACTIONS.forEach(a => qTable[key][a] = 0);
+                    }
+                }
+            }
+        }
+        
+        // Get reward for position
+        function getReward(pos) {
+            const cell = grid[pos.y][pos.x];
+            if (cell === 4) return 10;
+            if (cell === 2) return 2;
+            if (cell === 3) return -5;
+            return -0.1;
+        }
+        
+        // Check if position is valid
+        function isValid(pos) {
+            return pos.x >= 0 && pos.x < GRID_SIZE && pos.y >= 0 && pos.y < GRID_SIZE && grid[pos.y][pos.x] !== 1;
+        }
+        
+        // Get next position
+        function getNextPos(pos, action) {
+            const moves = { 'UP': {x:0,y:-1}, 'DOWN': {x:0,y:1}, 'LEFT': {x:-1,y:0}, 'RIGHT': {x:1,y:0} };
+            const m = moves[action];
+            const newPos = { x: pos.x + m.x, y: pos.y + m.y };
+            return isValid(newPos) ? newPos : pos;
+        }
+        
+        // Select action
+        function selectAction(pos, epsilon) {
+            if (Math.random() < epsilon) {
+                return ACTIONS[Math.floor(Math.random() * ACTIONS.length)];
+            }
+            const key = `${pos.x},${pos.y}`;
+            const qVals = qTable[key];
+            let maxQ = -Infinity;
+            let best = [];
+            ACTIONS.forEach(a => {
+                if (qVals[a] > maxQ) { maxQ = qVals[a]; best = [a]; }
+                else if (qVals[a] === maxQ) best.push(a);
+            });
+            return best[Math.floor(Math.random() * best.length)];
+        }
+        
+        // Update Q-value
+        function updateQ(state, action, reward, nextState, alpha, gamma) {
+            const sKey = `${state.x},${state.y}`;
+            const nsKey = `${nextState.x},${nextState.y}`;
+            const currentQ = qTable[sKey][action];
+            const maxNextQ = Math.max(...Object.values(qTable[nsKey]));
+            qTable[sKey][action] = currentQ + alpha * (reward + gamma * maxNextQ - currentQ);
+        }
+        
+        // Get best action for visualization
+        function getBestAction(x, y) {
+            const key = `${x},${y}`;
+            if (!qTable[key]) return null;
+            const qVals = qTable[key];
+            let maxQ = -Infinity;
+            let best = null;
+            ACTIONS.forEach(a => {
+                if (qVals[a] > maxQ) { maxQ = qVals[a]; best = a; }
+            });
+            return maxQ > 0 ? best : null;
+        }
+        
+        // Run one episode
+        function runEpisode() {
+            let pos = { x: 0, y: 0 };
+            let epReward = 0;
+            let steps = 0;
+            const maxSteps = 50;
+            
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const gamma = parseFloat(document.getElementById('gamma').value);
+            const epsilon = parseFloat(document.getElementById('epsilon').value);
+            
+            while (steps < maxSteps) {
+                const action = selectAction(pos, epsilon);
+                const nextPos = getNextPos(pos, action);
+                const reward = getReward(nextPos);
+                
+                updateQ(pos, action, reward, nextPos, alpha, gamma);
+                epReward += reward;
+                pos = nextPos;
+                visitedStates.add(`${pos.x},${pos.y}`);
+                
+                robotPos = pos;
+                updateGrid();
+                document.getElementById('lastAction').textContent = action;
+                
+                if (grid[pos.y][pos.x] === 4) break;
+                steps++;
+            }
+            
+            totalReward += epReward;
+            rewardHistory.push(epReward);
+            if (rewardHistory.length > 20) rewardHistory.shift();
+            episode++;
+            
+            updateStats();
+            updateChart();
+        }
+        
+        // Render grid
+        function updateGrid() {
+            const gridEl = document.getElementById('gameGrid');
+            gridEl.innerHTML = '';
+            
+            for (let y = 0; y < GRID_SIZE; y++) {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+                
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.background = COLORS[grid[y][x]];
+                    
+                    const isRobot = robotPos.x === x && robotPos.y === y;
+                    const emoji = EMOJIS[grid[y][x]];
+                    const bestAction = getBestAction(x, y);
+                    
+                    if (isRobot) {
+                        cell.textContent = '🤖';
+                        cell.style.fontSize = '2.5rem';
+                    } else if (emoji) {
+                        cell.textContent = emoji;
+                    } else if (bestAction) {
+                        cell.textContent = ARROWS[bestAction];
+                        cell.style.color = '#667eea';
+                        cell.style.fontSize = '1.5rem';
+                        cell.style.fontWeight = 'bold';
+                        cell.style.opacity = '0.6';
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                gridEl.appendChild(row);
+            }
+        }
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('episodeCount').textContent = episode;
+            document.getElementById('totalReward').textContent = totalReward.toFixed(1);
+            document.getElementById('visited').textContent = `${visitedStates.size}/32`;
+        }
+        
+        // Update chart
+        function updateChart() {
+            const chartEl = document.getElementById('chart');
+            chartEl.innerHTML = '';
+            
+            const max = Math.max(...rewardHistory, 1);
+            const min = Math.min(...rewardHistory, 0);
+            
+            rewardHistory.forEach((r, i) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                const height = max === min ? 50 : ((r - min) / (max - min)) * 100;
+                bar.style.height = Math.max(height, 2) + '%';
+                bar.style.background = r >= 0 
+                    ? 'linear-gradient(180deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)';
+                bar.title = `Episode ${i + 1}: ${r.toFixed(1)}`;
+                chartEl.appendChild(bar);
+            });
+        }
+        
+        // Reset game
+        function reset() {
+            robotPos = { x: 0, y: 0 };
+            initQTable();
+            episode = 0;
+            totalReward = 0;
+            rewardHistory = [0];
+            visitedStates = new Set();
+            updateGrid();
+            updateStats();
+            updateChart();
+            document.getElementById('lastAction').textContent = '-';
+        }
+        
+        // Toggle running
+        function toggleRunning() {
+            isRunning = !isRunning;
+            const btn = document.getElementById('startBtn');
+            
+            if (isRunning) {
+                btn.textContent = '⏸️ Durdur';
+                btn.className = 'btn-stop';
+                const speed = parseInt(document.getElementById('speed').value);
+                intervalId = setInterval(runEpisode, speed);
+            } else {
+                btn.textContent = '▶️ Başlat';
+                btn.className = 'btn-start';
+                if (intervalId) clearInterval(intervalId);
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('startBtn').onclick = toggleRunning;
+        document.getElementById('resetBtn').onclick = () => {
+            if (isRunning) toggleRunning();
+            reset();
+        };
+        
+        // Parameter updates
+        document.getElementById('alpha').oninput = (e) => {
+            document.getElementById('alphaVal').textContent = parseFloat(e.target.value).toFixed(2);
+        };
+        document.getElementById('gamma').oninput = (e) => {
+            document.getElementById('gammaVal').textContent = parseFloat(e.target.value).toFixed(2);
+        };
+        document.getElementById('epsilon').oninput = (e) => {
+            document.getElementById('epsilonVal').textContent = parseFloat(e.target.value).toFixed(2);
+        };
+        document.getElementById('speed').oninput = (e) => {
+            const speed = parseInt(e.target.value);
+            document.getElementById('speedVal').textContent = (1000/speed).toFixed(1) + 'x';
+            if (isRunning) {
+                clearInterval(intervalId);
+                intervalId = setInterval(runEpisode, speed);
+            }
+        };
+        
+        // Initialize
+        initQTable();
+        updateGrid();
+        updateChart();
+    </script>
+</body>
+</html>
