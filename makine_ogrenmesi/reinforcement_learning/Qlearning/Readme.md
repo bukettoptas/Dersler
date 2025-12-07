@@ -8,7 +8,7 @@
 ### Online Demo
 Hiçbir kurulum gerektirmez! Doğrudan şu linkten erişin:
 
-👉 **[Q-Learning Hazine Avı Oyunu](https://bukettoptas.github.io/Dersler/makine_ogrenmesi/reinforcement_learning/Qlearning/qlearning_game.html)**
+👉 **[Q-Learning Hazine Avı Oyunu](https://github.com/bukettoptas/Dersler/blob/main/makine_ogrenmesi/reinforcement_learning/Qlearning/qlearning_game.html)**
 
 ---
 
