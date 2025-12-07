@@ -7,7 +7,7 @@
 
 **Hiçbir kurulum gerektirmez! Doğrudan şu linkten oynayın:**
 
-👉 **[Q-Learning Hazine Avı Oyunu](https://bukettoptas.github.io/Dersler/makine_ogrenmesi/reinforcement_learning/Qlearning/qlearning-game.html)**
+👉 **[Q-Learning Hazine Avı Oyunu](https://bukettoptas.github.io/Dersler/makine_ogrenmesi/reinforcement_learning/Qlearning/qlearning_game.html)**
 
 ---
 
@@ -106,14 +106,6 @@ Bu demo şunları gösterir:
 
 ---
 
-## 🛠️ Teknik Detaylar
-
-- **Teknoloji**: Pure HTML/CSS/JavaScript
-- **Bağımlılık**: Yok (Standalone)
-- **Tarayıcı Desteği**: Modern tarayıcılar (Chrome, Firefox, Safari, Edge)
-- **Mobil Uyumlu**: Evet
-
----
 
 ## 📖 Kullanım
 
@@ -130,4 +122,3 @@ Bu demo şunları gösterir:
 **Üniversite:** 4. Sınıf Yazılım Mühendisliği
 =======
 
->>>>>>> db8a4b6ace06f88138c8f05407f4078e0582199e
