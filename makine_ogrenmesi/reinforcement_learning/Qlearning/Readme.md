@@ -1,11 +1,12 @@
-<<<<<<< HEAD
-# 🤖 Q-Learning Treasure Hunt
+# 🤖 Makine Öğrenmesi | Reinforcement Learning 
 
-**Interactive Q-Learning Demo - Pekiştirmeli Öğrenme**
+> **Pekişmeli (Takviyeli) Öğrenme Yöntemi**
+> 
+> *Hazırlayan: Dr. Buket Toptaş*  
+> *Tarih: 2025*
 
-## 🎮 Canlı Demo
-
-**Hiçbir kurulum gerektirmez! Doğrudan şu linkten oynayın:**
+### Online Demo
+Hiçbir kurulum gerektirmez! Doğrudan şu linkten erişin:
 
 👉 **[Q-Learning Hazine Avı Oyunu](https://bukettoptas.github.io/Dersler/makine_ogrenmesi/reinforcement_learning/Qlearning/qlearning_game.html)**
 
