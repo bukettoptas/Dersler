@@ -1,0 +1,166 @@
+# Kuantum Temelleri — I
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bukettoptas/Dersler/blob/main/QML/kuantum_temelleri_1/Quantum_Temelleri_I.ipynb)
+
+---
+
+## 📌 Konular
+
+- Moore Yasası ve Kuantum Bilgisayarın Doğuşu
+- Temel Semboller ve Terimler
+- Dirac Notasyonu (Ket / Bra)
+- İç Çarpım ve Dış Çarpım
+- Qubit Türleri
+- Hilbert Oteli ve Hilbert Uzayı
+- Fiziksel ve Mantıksal Qubit'ler
+
+---
+
+## 1. Moore Yasası
+
+Gordon Moore (1965): Entegre devredeki transistör sayısı her **2 yılda 2 katına** çıkar.
+
+Transistörler küçüldükçe atom boyutuna yaklaşıyoruz → klasik fizik kuralları bozuluyor → **kuantum bilgisayar**ın motivasyonu burada başlıyor.
+
+| Yıl | Transistör | Çip |
+|:---:|:---:|---|
+| 1971 | 2.300 | Intel 4004 |
+| 2000 | 42.000.000 | Pentium 4 |
+| 2024 | 114.000.000.000 | Apple M3 Ultra |
+
+> ⚠️ Atom boyutu sınırına yaklaştıkça kuantum etkileri kaçınılmaz hale geliyor.
+
+---
+
+## 2. Temel Semboller ve Terimler
+
+| Terim | Anlamı |
+|-------|--------|
+| **Qubit** | Kuantum bilgi birimi — 0, 1 veya her ikisi aynı anda |
+| **Süperpozisyon** | Qubit'in aynı anda hem 0 hem 1 olabilmesi |
+| **Dolanıklık** | İki qubit'in birbirine bağlı olması |
+| **Ölçüm** | Durumu gözlemleme (süperpozisyon çöker) |
+| **Genlik** | Katsayı — olasılığın karekökü |
+| **Faz** | Karmaşık sayının açısı: e^(iθ) |
+
+| Sembol | Okuma | Anlamı |
+|:------:|-------|--------|
+| \|ψ⟩ | ket psi | Kuantum durumu (sütun vektör) |
+| ⟨ψ\| | bra psi | Eşlenik (satır vektör) |
+| ⟨φ\|ψ⟩ | braket | İç çarpım → olasılık |
+| ⊗ | tensör | İki qubit'i birleştirme |
+
+---
+
+## 3. Dirac Notasyonu
+
+Paul Dirac'ın icadı — vektörleri pratik yazmak için:
+
+**Ket** = sütun vektör, **Bra** = satır vektör
+
+```
+|0⟩ = [1, 0]ᵀ       |1⟩ = [0, 1]ᵀ
+
+|ψ⟩ = α|0⟩ + β|1⟩    (|α|² + |β|² = 1)
+```
+
+### Kod Örneği
+
+```python
+import numpy as np
+
+ket_0 = np.array([[1], [0]])   # |0⟩
+ket_1 = np.array([[0], [1]])   # |1⟩
+
+# Süperpozisyon: |ψ⟩ = (1/√2)|0⟩ + (1/√2)|1⟩
+alpha = 1 / np.sqrt(2)
+beta  = 1 / np.sqrt(2)
+psi = alpha * ket_0 + beta * ket_1
+
+print(f"|ψ⟩ = {psi.flatten()}")
+print(f"Normalizasyon: |α|² + |β|² = {abs(alpha)**2 + abs(beta)**2:.1f}")
+```
+
+**Çıktı:**
+```
+|ψ⟩ = [0.70710678 0.70710678]
+Normalizasyon: |α|² + |β|² = 1.0
+```
+
+---
+
+## 4. İç Çarpım ve Dış Çarpım
+
+**İç çarpım** ⟨φ|ψ⟩ → tek sayı (skaler) → **benzerlik ölçer**
+
+**Dış çarpım** |ψ⟩⟨φ| → matris → **operatör oluşturur**
+
+```python
+bra_0 = ket_0.conj().T   # ⟨0|
+
+# İç çarpım
+print(f"⟨0|0⟩ = {float((bra_0 @ ket_0)[0,0]):.0f}")   # 1 (aynı)
+print(f"⟨0|1⟩ = {float((bra_0 @ ket_1)[0,0]):.0f}")   # 0 (dik)
+
+# Born kuralı: P(0) = |⟨0|ψ⟩|²
+psi_plus = (ket_0 + ket_1) / np.sqrt(2)
+p0 = abs(bra_0 @ psi_plus)[0,0] ** 2
+print(f"P(0) = {p0:.2f} → %50")
+```
+
+---
+
+## 5. Qubit Türleri
+
+| Tür | Şirket | Avantaj | Dezavantaj |
+|-----|--------|---------|------------|
+| **Süperiletken** | IBM, Google | Hızlı kapı (~ns) | Soğutma (15 mK) |
+| **İyon Tuzağı** | IonQ | Yüksek doğruluk | Yavaş (~μs) |
+| **Fotonik** | Xanadu | Oda sıcaklığı | Kapılar zor |
+| **Topolojik** | Microsoft | Gürültüye dayanıklı | Henüz deneysel |
+
+---
+
+## 6. Hilbert Oteli ve Hilbert Uzayı
+
+### Hilbert Oteli
+
+Sonsuz odalı otel, tüm odalar dolu:
+
+- **Yeni 1 misafir →** herkes n→n+1'e kayar → Oda 1 boşalır → **∞ + 1 = ∞**
+- **Sonsuz otobüs →** herkes n→2n'e kayar → tek odalar boşalır → **∞ + ∞ = ∞**
+
+### Hilbert Uzayı
+
+Kuantum durumlarının yaşadığı matematiksel ev. Üç temel özellik:
+
+1. **Vektör uzayı** → süperpozisyon mümkün
+2. **İç çarpım** → olasılık hesaplanır (Born kuralı)
+3. **Tamlık** → yakınsak dizilerin limiti uzayda kalır (delik yok)
+
+**Boyut = 2ⁿ** (üstel büyüme):
+
+| Qubit | Boyut | Not |
+|:-----:|:-----:|-----|
+| 1 | 2 | ℂ² |
+| 3 | 8 | ℂ⁸ |
+| 10 | 1.024 | Bin boyut |
+| 50 | ~10¹⁵ | Klasik simülasyon imkansız! |
+
+---
+
+## 7. Fiziksel ve Mantıksal Qubit'ler
+
+| | Fiziksel Qubit | Mantıksal Qubit |
+|---|---|---|
+| Tanım | Donanımdaki gerçek qubit | Hata düzeltme ile korunan soyut qubit |
+| Gürültü | Var (hatalı) | Düzeltilmiş |
+| Oran | — | ~1000 fiziksel = 1 mantıksal |
+
+> **Analoji:** Fiziksel = kurşun kalemle yazılmış harf (silinebilir). Mantıksal = aynı harfin 100 kopyası (birkaçı silinse bile okunur).
+
+Bugünkü bilgisayarlar **NISQ** (Noisy Intermediate-Scale Quantum) çağında. QML tam da bu çağ için tasarlanmış!
+
+---
+
+📌 **Kodları çalıştırmak için** → [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bukettoptas/Dersler/blob/main/QML/kuantum_temelleri_1/Quantum_Temelleri_I.ipynb)
