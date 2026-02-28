@@ -129,10 +129,10 @@ print(f"|1⟩ çıkma sayısı: {np.sum(results==1)}")  # ~250
 | 1 | 0 | %0 ❌ |
 
 ### Klasik Korelasyon vs Kuantum Dolanıklık
-
+**Klasik:** Klasik dünyada korelasyon, iki sistemin önceden belirlenmiş bir ilişkiye sahip olmasıdır. Örneğin iki kutuya kırmızı/mavi toplar koyduğunu düşün; kutulardan birini açıp kırmızı topu görünce, diğer kutuda kesinlikle mavinin olduğunu bilirsin. Bu durum tamamen saklı bilgi ile açıklanabilir. Ölçüm yapmadan önce iki sistemin durumları “ne oldukları belli ama sen bilmiyorsun” şeklindedir.
 **Klasik (çorap):** Bir çift çorabı iki kutuya koy. İstanbul'daki kutuyu aç, kırmızı gör → Ankara'da mavi. Ama renk baştan belliydi.
 
-**Kuantum:** Kutuyu açana kadar renk **YOK**. Açtığın an renk belirleniyor — diğer kutu da anında karşıt rengi alıyor. Einstein buna **"ürkütücü uzaktan etki"** dedi.
+**Kuantum:** Kuantum dolanıklıkta ise iki parçacığın durumu tek bir ortak sistem gibi davranır ve ölçüm yapılana kadar ayrı ayrı “ne oldukları” bile tanımlı değildir. Dolanık parçacıklardan birinin ölçülmesi, diğerinin sonucunu anında belirler — aralarında mesafe olsa bile. Bu, klasik korelasyon gibi “önceden belirlenmiş gizli bilgi” ile açıklanamaz; çünkü sonuç gerçekten ölçümle birlikte ortaya çıkar..
 
 ### Kod Örneği — PennyLane ile Bell Durumu
 
