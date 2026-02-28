@@ -1,5 +1,8 @@
 # Kuantum Temelleri — I
-
+> 
+> *Hazırlayan: Dr. Buket Toptaş*  
+> *Tarih: 2026*
+> 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bukettoptas/Dersler/blob/main/QML/kuantum_temelleri_1/Quantum_Temelleri_I.ipynb)
 
 ---
@@ -152,3 +155,29 @@ Hilbert uzayı, bildiğimiz sonlu boyutlu vektör uzaylarının daha genel ve g�
 ---
 
 📌 **Kodları çalıştırmak için** → [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bukettoptas/Dersler/blob/main/QML/kuantum_temelleri_1/Quantum_Temelleri_I.ipynb)
+---
+
+## Sorun Bildirme
+
+Bir hata buldunuz mu? [Issue açın](https://github.com/bukettoptas/Dersler/issues)
+
+---
+
+## Geliştirici
+
+**[Adınız]**
+- GitHub: [@bukettoptas](https://github.com/bukettoptas)
+- LinkedIn: [buket-toptaş-142b6677](https://www.linkedin.com/in/buket-topta%C5%9F-142b6677/)
+- Email: buketecrinozturk@gmail.com
+
+---
+
+## 🙏 Teşekkürler
+
+- Açık kaynak katkıcılara
+- Geri bildirim sağlayan herkese
+
+---
+### ⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın! ⭐
+
+**Made with ❤️ for QML learners**
