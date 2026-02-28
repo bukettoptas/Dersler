@@ -4,7 +4,7 @@
 
 ---
 
-## 📌 Konular
+## Konular
 
 - Moore Yasası ve Kuantum Bilgisayarın Doğuşu
 - Temel Semboller ve Terimler
@@ -18,18 +18,9 @@
 
 ## 1. Moore Yasası
 
-Gordon Moore (1965): Entegre devredeki transistör sayısı her **2 yılda 2 katına** çıkar.
+Gordon Moore (1965): Entegre devredeki transistör sayısı her **2 yılda 2 katına** çıkar teorisinde bulunmuştur.
 
-Transistörler küçüldükçe atom boyutuna yaklaşıyoruz → klasik fizik kuralları bozuluyor → **kuantum bilgisayar**ın motivasyonu burada başlıyor.
-
-| Yıl | Transistör | Çip |
-|:---:|:---:|---|
-| 1971 | 2.300 | Intel 4004 |
-| 2000 | 42.000.000 | Pentium 4 |
-| 2024 | 114.000.000.000 | Apple M3 Ultra |
-
-> ⚠️ Atom boyutu sınırına yaklaştıkça kuantum etkileri kaçınılmaz hale geliyor.
-
+Transistörler küçüldükçe atom boyutuna yaklaşıyoruz → klasik fizik kuralları bozuluyor → **kuantum bilgisayar**ın motivasyonu da burada başlıyor. Transistörler atom boyutu sınırına yaklaştıkça kuantum etkileri kaçınılmaz hale geliyor.
 ---
 
 ## 2. Temel Semboller ve Terimler
@@ -124,6 +115,7 @@ print(f"P(0) = {p0:.2f} → %50")
 ## 6. Hilbert Oteli ve Hilbert Uzayı
 
 ### Hilbert Oteli
+Matematiksel sonsuzluk kavramını açıklamak için kullanılan düşünce deneyidir. Sonsuz sayıda odaya sahip bir oteldir ve tüm odalar dolu olsa bile yeni müşterilere yer açılabilir. Örneğin, her misafir bir sonraki numaralı odaya taşındığında (1→2, 2→3 …), 1 numaralı oda boşalır. Bu, sayılabilir sonsuzluk fikrini sezgisel olarak anlamayı sağlar. Daha ileri versiyonlarda otel, sonsuz otobüsler dolusu misafiri bile alabilir; bu da farklı sonsuzluk türlerinin karşılaştırılmasına olanak verir.
 
 Sonsuz odalı otel, tüm odalar dolu:
 
@@ -132,8 +124,8 @@ Sonsuz odalı otel, tüm odalar dolu:
 
 ### Hilbert Uzayı
 
-Kuantum durumlarının yaşadığı matematiksel ev. Üç temel özellik:
-
+Hilbert uzayı, bildiğimiz sonlu boyutlu vektör uzaylarının daha genel ve güçlü hâlidir; farkı, sadece sayılardan oluşan vektörleri değil, fonksiyonlar ve sinyaller gibi sonsuz boyutlu nesneleri de aynı “vektör mantığıyla” ele alabilmesidir. Normal bir vektör uzayında açı, uzunluk ve iç çarpım gibi kavramlar her zaman tanımlı değildir; oysa Hilbert uzayında bunların hepsi vardır ve bu sayede fonksiyonlar arasında da tıpkı vektörlerdeki gibi mesafe ölçebilir, açı hesaplayabilir ve projeksiyon yapabilirsin. “Cauchy dizisi” denen şey ise basitçe, elemanları birbirine gittikçe yaklaşan bir dizinin gerçekten bir limite ulaşıp ulaşmadığını sorar; Hilbert uzayı bunu garanti eder, yani “tam”dır. Bu özellik, Fourier analizinden makine öğrenimindeki kernel yöntemlerine kadar birçok hesaplamanın güvenilir ve tutarlı olmasını sağlar.
+Üç temel özelliğe sahiptir:
 1. **Vektör uzayı** → süperpozisyon mümkün
 2. **İç çarpım** → olasılık hesaplanır (Born kuralı)
 3. **Tamlık** → yakınsak dizilerin limiti uzayda kalır (delik yok)
@@ -156,10 +148,6 @@ Kuantum durumlarının yaşadığı matematiksel ev. Üç temel özellik:
 | Tanım | Donanımdaki gerçek qubit | Hata düzeltme ile korunan soyut qubit |
 | Gürültü | Var (hatalı) | Düzeltilmiş |
 | Oran | — | ~1000 fiziksel = 1 mantıksal |
-
-> **Analoji:** Fiziksel = kurşun kalemle yazılmış harf (silinebilir). Mantıksal = aynı harfin 100 kopyası (birkaçı silinse bile okunur).
-
-Bugünkü bilgisayarlar **NISQ** (Noisy Intermediate-Scale Quantum) çağında. QML tam da bu çağ için tasarlanmış!
 
 ---
 
