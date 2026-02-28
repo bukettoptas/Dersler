@@ -1,10 +1,9 @@
-# ⚛️ Kuantum Makine Öğrenmesi (QML)
+# Kuantum Makine Öğrenmesi (QML)
 
-**Dr. Buket Toptaş** | Yazılım Mühendisliği Bölümü
+> *Hazırlayan: Dr. Buket Toptaş*  
+> *Tarih: 2026*
 
----
-
-## 📚 Ders İçerikleri
+## Ders İçerikleri
 
 | # | Konu | Klasör |
 |:-:|------|:------:|
@@ -12,7 +11,7 @@
 | 2 | [Kuantum Temelleri - II](kuantum_temelleri_2) | Bloch Küresi, Süperpozisyon, Ölçüm, Dolanıklık |
 | 3 | [Kuantum Kapıları](kuantum_kapilari) | Pauli, Hadamard, Rotasyon, CNOT |
 
-## 🎮 Quizler
+## Quizler
 
 | Hafta | Konu | |
 |:-----:|------|:-:|
