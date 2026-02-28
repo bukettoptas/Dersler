@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚛️ Kuantum Quiz — Dr. Buket Toptaş</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Baloo 2','Nunito',sans-serif;background:linear-gradient(135deg,#1a0533 0%,#0d1b2a 40%,#1b2838 100%);min-height:100vh;overflow-x:hidden}
+.screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
+
+/* Animations */
+@keyframes float0{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes float1{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-15px) translateX(10px)}}
+@keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px) rotate(10deg)}}
+@keyframes logoGlow{0%,100%{text-shadow:0 0 20px rgba(139,92,246,0.3)}50%{text-shadow:0 0 40px rgba(139,92,246,0.6),0 0 80px rgba(59,130,246,0.3)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes correctPop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(100vh) rotate(720deg)}}
+@keyframes streakBounce{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+.particle{position:absolute;border-radius:50%;pointer-events:none}
+.splash-box{background:rgba(255,255,255,0.05);border-radius:16px;padding:24px 32px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);animation:slideUp 0.6s ease-out;width:320;text-align:center}
+.input-name{width:100%;padding:12px 16px;font-size:18px;border-radius:10px;border:2px solid rgba(139,92,246,0.3);background:rgba(255,255,255,0.06);color:#fff;outline:none;font-family:inherit;transition:border-color 0.3s}
+.input-name:focus{border-color:#8b5cf6}
+.btn-start{margin-top:16px;width:100%;padding:14px;font-size:18px;font-weight:700;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#3b82f6);color:#fff;font-family:inherit;transition:all 0.2s}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(139,92,246,0.4)}
+.btn-start:disabled{opacity:0.4;cursor:default;transform:none;background:rgba(255,255,255,0.1)}
+
+.q-card{background:rgba(255,255,255,0.06);border-radius:16px;padding:20px 24px;text-align:center;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);animation:slideIn 0.4s ease-out;width:100%;max-width:700px}
+.q-text{color:#f1f5f9;font-size:20px;font-weight:700;line-height:1.4}
+
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:700px;flex:1}
+.opt-btn{border-radius:14px;padding:16px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.2s;font-family:inherit;text-align:left;min-height:64px;border:2px solid transparent;font-size:14px;color:#fff;font-weight:600}
+.opt-btn:hover:not(:disabled){transform:scale(1.03)}
+.opt-btn:disabled{cursor:default}
+.opt-btn.shake{animation:shake 0.4s}
+.opt-btn.correct-pop{animation:correctPop 0.5s}
+
+.timer-bar{width:100%;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;max-width:700px}
+.timer-fill{height:100%;border-radius:3px;transition:width 0.1s linear,background 0.3s}
+.timer-pulse{animation:timerPulse 0.5s infinite}
+
+.explain-box{margin-top:16px;background:rgba(139,92,246,0.1);border-radius:14px;padding:14px 18px;border:1px solid rgba(139,92,246,0.2);animation:slideIn 0.4s ease-out;width:100%;max-width:700px}
+.btn-next{margin-top:14px;padding:14px;font-size:17px;font-weight:700;border-radius:12px;border:none;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#3b82f6);color:#fff;font-family:inherit;width:100%;max-width:700px;animation:slideIn 0.3s ease-out;transition:transform 0.2s}
+.btn-next:hover{transform:translateY(-2px)}
+
+.stat-card{background:rgba(255,255,255,0.05);border-radius:14px;padding:16px 28px;text-align:center}
+.review-item{border-radius:10px;padding:10px 14px;margin-bottom:8px}
+
+.confetti-piece{position:fixed;top:-20px;width:8px;height:8px;opacity:0.7}
+
+@media(max-width:600px){
+  .opts-grid{grid-template-columns:1fr}
+  .q-text{font-size:17px}
+  .opt-btn{min-height:56px;padding:12px}
+  .splash-box{width:90%;padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+const QUESTIONS = [
+  {q:"Hilbert Uzayı nedir?",opts:["Sonsuz odalı bir otel","İç çarpım tanımlı, tam bir vektör uzayı","Klasik bilgisayarın bellek alanı","Newton'un yerçekimi formülü"],correct:1,explain:"Hilbert Uzayı = iç çarpım + tamlık + vektör uzayı. Kuantum durumlarının yaşadığı matematiksel ev!"},
+  {q:"1 qubit hangi uzayda yaşar?",opts:["ℝ² (2D reel)","ℂ² (2D karmaşık)","ℂ⁴ (4D karmaşık)","ℝ³ (3D reel)"],correct:1,explain:"1 qubit = ℂ², yani 2 boyutlu karmaşık vektör uzayı. Bloch küresi ile görselleştirilebilir."},
+  {q:"3 qubit'lik bir sistemin Hilbert uzayının boyutu kaçtır?",opts:["3","6","8","16"],correct:2,explain:"n qubit → 2ⁿ boyut. 3 qubit → 2³ = 8 boyut. Üstel büyüme!"},
+  {q:"Hilbert Otelinde tüm odalar doluyken yeni bir misafir gelirse ne yapılır?",opts:["Misafir geri gönderilir","Herkes bir sonraki odaya kayar (n → n+1)","Son odadaki kişi çıkarılır","İki kişi aynı odaya konur"],correct:1,explain:"Herkes n → n+1'e kayar, Oda 1 boşalır. ∞ + 1 = ∞!"},
+  {q:"Born kuralına göre |ψ⟩ = α|0⟩ + β|1⟩ durumunda 0 ölçme olasılığı nedir?",opts:["α","|α|²","α + β","|α| + |β|"],correct:1,explain:"Born kuralı: P(0) = |α|². Genliğin karesi = olasılık."},
+  {q:"Oracle (Kahin) Grover algoritmasında ne yapar?",opts:["Doğru cevabı siler","Tüm olasılıkları eşitler","Doğru cevabın genliğini eksiye çevirir","Ölçüm yapar"],correct:2,explain:"Oracle sadece doğru cevabın işaretini değiştirir: +0.35 → −0.35. Tek başına olasılığı değiştirmez!"},
+  {q:"Diffusion operatörü ne yapar?",opts:["Tüm qubit'leri sıfırlar","Genlikleri ortalamaya göre aynalar","Rastgele kapılar uygular","Dolanıklığı kaldırır"],correct:1,explain:"Diffusion: yeni = 2×ortalama − eski. Eksi olan (doğru cevap) yukarı fırlar, pozitifler küçülür."},
+  {q:"Grover algoritması N elemanlı bir listede arama yaparken kaç sorgu gerektirir?",opts:["N","N/2","log(N)","√N"],correct:3,explain:"Grover kareköklü hızlanma sağlar: √N sorgu. 1 milyon elemanda 1000 sorgu yeter!"},
+  {q:"Hadamard kapısı |0⟩ durumuna uygulanınca ne olur?",opts:["|1⟩ olur","(|0⟩ + |1⟩)/√2 olur","|0⟩ kalır, değişmez","Qubit yok olur"],correct:1,explain:"H|0⟩ = (|0⟩ + |1⟩)/√2. Ölçersen %50 ihtimalle 0, %50 ihtimalle 1 çıkar."},
+  {q:"Neden Hilbert uzayında karmaşık sayılar (ℂ) kullanılır?",opts:["Daha hızlı hesaplama için","Faz bilgisini temsil etmek için (e^iθ)","Negatif olasılıklar için","Sadece gelenek, reel sayılar da olur"],correct:1,explain:"Kuantumda FAZ bilgisi var. e^(iθ) karmaşık bir sayıdır, reel sayılar fazı temsil edemez."},
+  {q:"Normal vektör uzayı kuantum için neden yetmez?",opts:["Vektörler toplanamaz","İç çarpım yok → olasılık hesaplanamaz","Boyut sınırlıdır","Sadece tam sayılar kullanılabilir"],correct:1,explain:"İç çarpım olmadan Born kuralı çalışmaz, olasılık hesaplayamazsın. Hilbert uzayı bunu garanti eder."},
+  {q:"Tamlık (completeness) ne demek?",opts:["Tüm kapılar mevcut demek","Her yakınsak dizinin limiti uzayın içinde kalır","Tüm qubit'ler ölçülmüş demek","Devrenin çalışması bitmiş demek"],correct:1,explain:"Tamlık = delik yok. Rasyonel sayılarda √2 noktasında delik var, Hilbert uzayında yok."},
+  {q:"Bell durumu (|00⟩+|11⟩)/√2 hangi Hilbert uzayında yaşar?",opts:["ℂ² (2 boyut)","ℂ⁴ (4 boyut)","ℂ⁸ (8 boyut)","ℂ¹⁶ (16 boyut)"],correct:1,explain:"2 qubit → ℂ⁴ uzayı. Baz: |00⟩, |01⟩, |10⟩, |11⟩ — 4 boyut."},
+  {q:"QML'de variasyonel devrede 'encoding' katmanı ne yapar?",opts:["Sonucu ölçer","Klasik veriyi kuantum durumuna çevirir","Hata düzeltme yapar","Qubit'leri sıfırlar"],correct:1,explain:"Encoding = klasik veriyi Ry(x) gibi kapılarla qubit'lere yükler. Veri → kuantum durumu."},
+  {q:"Oracle + Diffusion birlikte neden çalışır?",opts:["İkisi de aynı işi yapar, birlikte daha hızlı","Oracle işaretler, Diffusion aynalar — birlikte girişim oluşur","Oracle ölçer, Diffusion düzeltir","Rastgele deneme yanılma yöntemidir"],correct:1,explain:"Oracle tek başına olasılığı değiştirmez. Diffusion eksiyi kullanarak doğru cevabı büyütür. Tahterevalli analojisi!"}
+];
+
+const COLORS=["#e21b3c","#1368ce","#d89e00","#26890c"];
+const SHAPES=["▲","◆","●","■"];
+const TIME_PER_Q=20;
+
+let state={screen:"splash",name:"",qIdx:0,score:0,streak:0,timer:TIME_PER_Q,selected:null,showResult:false,answers:[],timerInterval:null,startTime:null};
+
+function $(sel){return document.querySelector(sel)}
+function render(){
+  const app=document.getElementById("app");
+  if(state.screen==="splash") renderSplash(app);
+  else if(state.screen==="quiz") renderQuiz(app);
+  else renderResults(app);
+}
+
+function renderSplash(app){
+  let particles="";
+  const cols=["#e21b3c","#1368ce","#d89e00","#26890c","#7c3aed","#0891b2"];
+  for(let i=0;i<20;i++){
+    const s=4+Math.random()*8;
+    particles+=`<div class="particle" style="width:${s}px;height:${s}px;background:${cols[i%6]};opacity:${0.15+Math.random()*0.2};left:${Math.random()*100}%;top:${Math.random()*100}%;animation:float${i%3} ${3+Math.random()*4}s ease-in-out infinite;animation-delay:${Math.random()*3}s"></div>`;
+  }
+  app.innerHTML=`
+  <div class="screen" style="justify-content:center;position:relative;overflow:hidden">
+    ${particles}
+    <div style="font-size:64px;margin-bottom:8px;animation:logoGlow 3s ease-in-out infinite;position:relative;z-index:1">⚛️</div>
+    <h1 style="font-size:42px;font-weight:800;margin:0 0 4px;background:linear-gradient(90deg,#8b5cf6,#3b82f6,#0891b2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;position:relative;z-index:1">KUANTUM QUIZ</h1>
+    <p style="color:#94a3b8;font-size:16px;margin:0 0 32px;letter-spacing:2px;text-transform:uppercase;position:relative;z-index:1">Bilgini Test Et!</p>
+    <div class="splash-box" style="position:relative;z-index:1">
+      <p style="color:#cbd5e1;font-size:14px;margin:0 0 12px">Adını yaz ve başla!</p>
+      <input class="input-name" id="nameInput" placeholder="Adın..." value="${state.name}">
+      <button class="btn-start" id="startBtn" ${state.name.trim()?"":"disabled"}>🚀 BAŞLA!</button>
+    </div>
+    <p style="color:#475569;font-size:12px;margin-top:24px;position:relative;z-index:1">${QUESTIONS.length} soru • ${TIME_PER_Q} sn süre • Hızlı cevap = bonus puan</p>
+  </div>`;
+  const inp=$("#nameInput");
+  inp.addEventListener("input",e=>{state.name=e.target.value;$("#startBtn").disabled=!state.name.trim()});
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&state.name.trim())startQuiz()});
+  inp.focus();
+  $("#startBtn").addEventListener("click",startQuiz);
+}
+
+function startQuiz(){
+  if(!state.name.trim())return;
+  state.screen="quiz";state.qIdx=0;state.score=0;state.streak=0;state.answers=[];
+  state.selected=null;state.showResult=false;
+  render();startTimer();
+}
+
+function startTimer(){
+  state.startTime=Date.now();state.timer=TIME_PER_Q;
+  clearInterval(state.timerInterval);
+  state.timerInterval=setInterval(()=>{
+    const elapsed=(Date.now()-state.startTime)/1000;
+    state.timer=Math.max(0,TIME_PER_Q-elapsed);
+    updateTimerUI();
+    if(state.timer<=0){clearInterval(state.timerInterval);handleAnswer(null)}
+  },100);
+}
+
+function updateTimerUI(){
+  if(state.screen!=="quiz"||state.showResult)return;
+  const pct=(state.timer/TIME_PER_Q)*100;
+  const col=state.timer>10?"#10b981":state.timer>5?"#f59e0b":"#ef4444";
+  const fill=document.getElementById("timerFill");
+  const num=document.getElementById("timerNum");
+  if(fill){fill.style.width=pct+"%";fill.style.background=col;
+    if(state.timer<=5)fill.classList.add("timer-pulse");else fill.classList.remove("timer-pulse")}
+  if(num){num.textContent=Math.ceil(state.timer);num.style.color=col;
+    if(state.timer<=5)num.style.animation="timerPulse 0.5s infinite";else num.style.animation="none"}
+}
+
+function handleAnswer(idx){
+  if(state.showResult)return;
+  clearInterval(state.timerInterval);
+  const q=QUESTIONS[state.qIdx];
+  const isCorrect=idx===q.correct;
+  const timeBonus=Math.round((state.timer/TIME_PER_Q)*500);
+  const points=isCorrect?500+timeBonus:0;
+  state.streak=isCorrect?state.streak+1:0;
+  const streakBonus=state.streak>=3?200:0;
+  state.score+=points+streakBonus;
+  state.selected=idx;
+  state.showResult=true;
+  state.answers.push({qIdx:state.qIdx,selected:idx,correct:q.correct,isCorrect,points:points+streakBonus});
+  renderQuizResult(q,idx,isCorrect);
+}
+
+function renderQuiz(app){
+  const q=QUESTIONS[state.qIdx];
+  const total=QUESTIONS.length;
+  let optsHtml=q.opts.map((o,i)=>`
+    <button class="opt-btn" data-idx="${i}" style="background:${COLORS[i]}cc;animation:slideIn 0.3s ease-out ${i*0.08}s both">
+      <span style="font-size:22px;flex-shrink:0;width:32px;text-align:center">${SHAPES[i]}</span>
+      <span>${o}</span>
+    </button>`).join("");
+
+  app.innerHTML=`
+  <div class="screen" style="padding:16px 16px 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;max-width:700px;margin-bottom:8px">
+      <div style="color:#94a3b8;font-size:13px"><span style="color:#8b5cf6;font-weight:700">${state.qIdx+1}</span>/${total}</div>
+      <div style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 14px;display:flex;align-items:center;gap:6px">
+        <span style="font-size:14px">⚡</span>
+        <span style="color:#f59e0b;font-weight:700;font-size:14px">${state.score.toLocaleString()}</span>
+      </div>
+      ${state.streak>=2?`<div style="background:rgba(239,68,68,0.15);border-radius:20px;padding:4px 12px;color:#ef4444;font-size:12px;font-weight:700;animation:streakBounce 0.4s">🔥 ${state.streak} seri!</div>`:"<div></div>"}
+    </div>
+    <div class="timer-bar" style="margin-bottom:16px"><div class="timer-fill" id="timerFill" style="width:100%;background:#10b981"></div></div>
+    <div style="text-align:center;margin-bottom:12px"><span id="timerNum" style="font-size:32px;font-weight:800;color:#10b981">${TIME_PER_Q}</span></div>
+    <div class="q-card" style="margin-bottom:20px"><p class="q-text">${q.q}</p></div>
+    <div class="opts-grid">${optsHtml}</div>
+    <div id="explainArea"></div>
+    <div id="nextArea"></div>
+  </div>`;
+
+  document.querySelectorAll(".opt-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>handleAnswer(parseInt(btn.dataset.idx)));
+  });
+}
+
+function renderQuizResult(q,idx,isCorrect){
+  // Update option buttons
+  document.querySelectorAll(".opt-btn").forEach(btn=>{
+    const i=parseInt(btn.dataset.idx);
+    btn.disabled=true;
+    const isCorr=i===q.correct;
+    const isWrong=i===idx&&!isCorr;
+    const dimmed=!isCorr&&i!==idx;
+    if(isCorr){
+      btn.style.background="rgba(16,185,129,0.25)";btn.style.border="2px solid #10b981";
+      btn.classList.add("correct-pop");
+      btn.querySelector("span").textContent="✅";
+    }else if(isWrong){
+      btn.style.background="rgba(239,68,68,0.2)";btn.style.border="2px solid #ef4444";
+      btn.classList.add("shake");
+      btn.querySelector("span").textContent="❌";
+    }else if(dimmed){
+      btn.style.opacity="0.35";
+    }
+  });
+
+  const label=isCorrect?"🎉 Doğru!":idx===null?"⏰ Süre doldu!":"💡 Doğru cevap:";
+  $("#explainArea").innerHTML=`
+    <div class="explain-box">
+      <p style="color:#c4b5fd;font-size:13px;font-weight:700;margin:0 0 4px">${label}</p>
+      <p style="color:#e2e8f0;font-size:13px;margin:0;line-height:1.5">${q.explain}</p>
+    </div>`;
+
+  const isLast=state.qIdx+1>=QUESTIONS.length;
+  $("#nextArea").innerHTML=`<button class="btn-next" id="nextBtn">${isLast?"🏁 Sonuçları Gör":"➡️ Sonraki Soru"}</button>`;
+  $("#nextBtn").addEventListener("click",()=>{
+    if(isLast){state.screen="results";render()}
+    else{state.qIdx++;state.selected=null;state.showResult=false;render();startTimer()}
+  });
+}
+
+function renderResults(app){
+  const total=QUESTIONS.length;
+  const correctCount=state.answers.filter(a=>a.isCorrect).length;
+  const pct=Math.round((correctCount/total)*100);
+  let grade;
+  if(pct>=90)grade={emoji:"🏆",title:"KUANTUM DEHASI!",color:"#f59e0b"};
+  else if(pct>=70)grade={emoji:"🌟",title:"Harika İş!",color:"#10b981"};
+  else if(pct>=50)grade={emoji:"👍",title:"İyi Gidiyorsun!",color:"#3b82f6"};
+  else grade={emoji:"📚",title:"Tekrar Et, Gelişeceksin!",color:"#8b5cf6"};
+
+  let confetti="";
+  if(pct>=70){
+    for(let i=0;i<15;i++){
+      confetti+=`<div class="confetti-piece" style="left:${5+i*6.5}%;border-radius:${i%2?"50%":"0"};background:${COLORS[i%4]};animation:confetti ${2+Math.random()*3}s linear infinite;animation-delay:${Math.random()*2}s"></div>`;
+    }
+  }
+
+  let review=state.answers.map((a,i)=>{
+    const q=QUESTIONS[i];
+    return `<div class="review-item" style="background:${a.isCorrect?"rgba(16,185,129,0.08)":"rgba(239,68,68,0.08)"};border-left:3px solid ${a.isCorrect?"#10b981":"#ef4444"};animation:slideUp 0.3s ease-out ${i*0.05}s both">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#e2e8f0;font-size:13px;font-weight:600">${a.isCorrect?"✅":"❌"} S${i+1}: ${q.q.length>45?q.q.slice(0,45)+"...":q.q}</span>
+        <span style="color:${a.isCorrect?"#10b981":"#ef4444"};font-size:12px;font-weight:700">${a.isCorrect?"+"+a.points:"0"} puan</span>
+      </div>
+      ${!a.isCorrect?`<div style="color:#94a3b8;font-size:11px;margin-top:4px">Doğru: ${q.opts[q.correct]}</div>`:""}
+    </div>`;
+  }).join("");
+
+  app.innerHTML=`
+  <div class="screen" style="padding:24px">
+    ${confetti}
+    <div style="animation:popIn 0.5s ease-out;font-size:72px;margin-top:40px">${grade.emoji}</div>
+    <h1 style="color:${grade.color};font-size:36px;font-weight:800;margin:8px 0;text-align:center">${grade.title}</h1>
+    <p style="color:#94a3b8;font-size:16px">Tebrikler ${state.name}!</p>
+    <div style="display:flex;gap:16px;margin-top:24px;flex-wrap:wrap;justify-content:center">
+      ${[{l:"Skor",v:state.score.toLocaleString(),c:"#f59e0b"},{l:"Doğru",v:correctCount+"/"+total,c:"#10b981"},{l:"Başarı",v:"%"+pct,c:"#3b82f6"}].map((s,i)=>`
+        <div class="stat-card" style="border:1px solid ${s.c}33;animation:slideUp 0.4s ease-out ${i*0.1}s both">
+          <div style="font-size:28px;font-weight:800;color:${s.c}">${s.v}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px">${s.l}</div>
+        </div>`).join("")}
+    </div>
+    <div style="width:100%;max-width:600px;margin-top:28px">
+      <h3 style="color:#cbd5e1;font-size:16px;font-weight:700;margin:0 0 12px">📋 Cevap Özeti</h3>
+      ${review}
+    </div>
+    <button class="btn-next" id="retryBtn" style="margin-top:24px;max-width:300px">🔄 Tekrar Oyna</button>
+  </div>`;
+
+  $("#retryBtn").addEventListener("click",()=>{
+    state={screen:"splash",name:state.name,qIdx:0,score:0,streak:0,timer:TIME_PER_Q,selected:null,showResult:false,answers:[],timerInterval:null,startTime:null};
+    render();
+  });
+}
+
+render();
+</script>
+</body>
+</html>
