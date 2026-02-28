@@ -1,10 +1,13 @@
 # Kuantum Kapıları
-
+> 
+> *Hazırlayan: Dr. Buket Toptaş*  
+> *Tarih: 2026*
+> 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bukettoptas/Dersler/blob/main/QML/kuantum_kapilari/Quantum_Kapilari.ipynb)
 
 ---
 
-## 📌 Konular
+## Konular
 
 - Kuantum Kapısı Nedir?
 - Pauli Kapıları (X, Y, Z)
@@ -93,7 +96,7 @@ print(hadamard_test())
 
 ## 4. Rotasyon Kapıları (Rx, Ry, Rz)
 
-Bloch küresinde belirli bir açıyla döndürme. **QML'nin temel yapı taşları!**
+Bloch küresinde belirli bir açıyla döndürme.
 
 Variasyonel devrelerde `Ry(θ)` parametresi eğitimle optimize edilir — sinir ağındaki ağırlıklar gibi.
 
@@ -182,3 +185,27 @@ print(bell())
 ---
 
 📌 **Tüm kodları çalıştırmak için** → [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bukettoptas/Dersler/blob/main/QML/kuantum_kapilari/Quantum_Kapilari.ipynb)
+## Sorun Bildirme
+
+Bir hata buldunuz mu? [Issue açın](https://github.com/bukettoptas/Dersler/issues)
+
+---
+
+## Geliştirici
+
+**[Adınız]**
+- GitHub: [@bukettoptas](https://github.com/bukettoptas)
+- LinkedIn: [buket-toptaş-142b6677](https://www.linkedin.com/in/buket-topta%C5%9F-142b6677/)
+- Email: buketecrinozturk@gmail.com
+
+---
+
+## 🙏 Teşekkürler
+
+- Açık kaynak katkıcılara
+- Geri bildirim sağlayan herkese
+
+---
+### ⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın! ⭐
+
+**Made with ❤️ for QML learners**
